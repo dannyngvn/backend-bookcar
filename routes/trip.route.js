@@ -5,10 +5,10 @@ import { db } from '../db.js';
 
 const router = express.Router();
 
-// lấy toàn bộ cuốc xe status pending ( đã hoàn thành )
+// lấy toàn bộ cuốc xe ( đã hoàn thành )
 
 router.get('/', async (req, res) => {
-  const data = await db.Trip.find({ status: 'pending' }).toArray();
+  const data = await db.Trip.find({}).toArray();
   console.log(req.headers);
   res.json({
     data: data,
@@ -50,11 +50,13 @@ router.post('/', async (req, res) => {
 
 router.patch('/:id', async (req, res) => {
   const tripId = req.params.id;
+  const implementer = req.body;
+  console.log(implementer);
 
   try {
     const updatedTrip = await db.Trip.findOneAndUpdate(
       { _id: new ObjectId(tripId) },
-      { $set: { status: 'processing' } },
+      { $set: { status: 'processing', implementer: implementer.userID } },
       { returnOriginal: false } // Trả về document sau khi cập nhật
     );
 
