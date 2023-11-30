@@ -1,25 +1,10 @@
 import express from 'express';
 import Jwt from 'jsonwebtoken';
+import { db } from '../db.js';
 
 const router = express.Router();
-const usersData = [
-  {
-    id: '2',
-    username: 'dannyngvn',
-    password: '123',
-    phoneNumber: '0912222821',
-    fullName: 'Nguyễn Quang Tùng',
-    vehicleType: 5,
-    vehicle: 'vios',
-    carImages: '',
-    userImage: '',
-    licensePlates: '30A9999',
-    accountBalance: 5000000,
-    myTrip: [],
-  },
-];
 
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { phoneNumber, password } = req.body;
   //kiểm tra xem người dùng có gửi đầy đủ tên đăng nhập và mật khẩu không ?
   if (!phoneNumber || !password) {
@@ -29,9 +14,8 @@ router.post('/login', (req, res) => {
   }
 
   // lấy dữ liệu người đùng dựa trên tên đăng nhập và mật khẩu đã được gửi lên
-  const existingUser = usersData.find(user => {
-    return user.phoneNumber === phoneNumber && user.password === password;
-  });
+
+  const existingUser = await db.Users.findOne({ phoneNumber: phoneNumber });
 
   // kiểm tra xem  người dùng có tồn tại hay không
   if (!existingUser) {
@@ -56,7 +40,7 @@ router.post('/login', (req, res) => {
 
   res.json({
     message: `xin chào ${existingUser.fullName}`,
-    id: existingUser.id,
+    id: existingUser._id,
     user: jwtPayload,
     accessToken: token,
   });
