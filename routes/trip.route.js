@@ -51,12 +51,45 @@ router.post('/', async (req, res) => {
 router.patch('/:id', checkMoneyMiddleware, async (req, res) => {
   const tripId = req.params.id;
   const implementer = req.body;
-  // console.log('day la id nguoi dung ', implementer.userID);
 
   try {
     const existingTrip = await db.Trip.findOneAndUpdate(
       { _id: new ObjectId(tripId) }, // Sử dụng _id để tìm chuyến đi cụ thể
       { $set: { status: 'processing', implementer: implementer.userID } },
+      { new: true } // Trả về document sau khi cập nhật
+    );
+
+    const existingUser = await db.Users.findOneAndUpdate(
+      { _id: new ObjectId(implementer.userID) }, // Sử dụng userID để tìm người dùng cụ thể
+      {
+        $inc: {
+          accountBalance: -existingTrip.price,
+        },
+      }, // Giảm số dư tài khoản
+      { new: true } // Trả về document sau khi cập nhật
+    );
+
+    res.json({
+      message: 'Đã nhận cuốc',
+      exitingTrip: existingTrip,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    console.log(error);
+  }
+});
+
+//hủy chuyến
+
+router.patch('/cancel/:id', async (req, res) => {
+  const tripId = req.params.id;
+  const implementer = req.body;
+  // console.log('day la id nguoi dung ', implementer.userID);
+
+  try {
+    const existingTrip = await db.Trip.findOneAndUpdate(
+      { _id: new ObjectId(tripId) }, // Sử dụng _id để tìm chuyến đi cụ thể
+      { $set: { status: 'pending', implementer: '' } },
       { new: true } // Trả về document sau khi cập nhật
     );
     // console.log('day la ', existingTrip);
@@ -65,7 +98,7 @@ router.patch('/:id', checkMoneyMiddleware, async (req, res) => {
       { _id: new ObjectId(implementer.userID) }, // Sử dụng userID để tìm người dùng cụ thể
       {
         $inc: {
-          accountBalance: -existingTrip.price,
+          accountBalance: +existingTrip.price,
         },
       }, // Giảm số dư tài khoản
       { new: true } // Trả về document sau khi cập nhật
