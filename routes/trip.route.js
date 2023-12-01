@@ -114,6 +114,40 @@ router.patch('/cancel/:id', async (req, res) => {
   }
 });
 
+//hoàn thành chuyến
+
+router.patch('/complete/:id', async (req, res) => {
+  const tripId = req.params.id;
+  const originator = req.body;
+  // console.log(originator.originator);
+
+  try {
+    const existingTrip = await db.Trip.findOneAndUpdate(
+      { _id: new ObjectId(tripId) }, // Sử dụng _id để tìm chuyến đi cụ thể
+      { $set: { status: 'complete' } },
+      { new: true } // Trả về document sau khi cập nhật
+    );
+
+    const existingUser = await db.Users.findOneAndUpdate(
+      { _id: new ObjectId(originator.originator) }, // Sử dụng userID để tìm người dùng cụ thể
+      {
+        $inc: {
+          accountBalance: +existingTrip.price - 5000,
+        },
+      }, // Giảm số dư tài khoản
+      { new: true } // Trả về document sau khi cập nhật
+    );
+
+    res.json({
+      message: 'Đã hoàn thành',
+      exitingTrip: existingTrip,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    console.log(error);
+  }
+});
+
 // router.delete('/:id', (req, res) => {
 //   const postId = req.params.id;
 //   const existingPostIndex = posts.findIndex(post => post.id === postId);
