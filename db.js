@@ -17,6 +17,7 @@ const connectToDB = async app => {
 
     db.Trip = database.collection('Trip');
     db.Users = database.collection('Users');
+    db.Transaction = database.collection('Transaction');
     console.log('Connected successfully to server');
     app.listen(process.env.PORT, () => {
       console.log(`Server dang chay${process.env.PORT}`);

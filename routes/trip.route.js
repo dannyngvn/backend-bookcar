@@ -9,7 +9,7 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
   const data = await db.Trip.find({}).toArray();
-  console.log(req.headers);
+  // console.log(req.headers);
   res.json({
     data: data,
   });
@@ -17,20 +17,20 @@ router.get('/', async (req, res) => {
 
 // lấy dữ liệu cuốc xe tài xế chọn ( đã hoàn thành )
 
-router.get('/:id', async (req, res) => {
-  const tripId = req.params.id;
-  const data = await db.Trip.findOne({ _id: new ObjectId(tripId) });
+// router.get('/:id', async (req, res) => {
+//   const tripId = req.params.id;
+//   const data = await db.Trip.findOne({ _id: new ObjectId(tripId) });
 
-  if (data.status === 'processing') {
-    return res.json({
-      message: 'Đã có tài xế nhận cuốc này',
-    });
-  }
+//   if (data.status === 'processing') {
+//     return res.json({
+//       message: 'Đã có tài xế nhận cuốc này',
+//     });
+//   }
 
-  res.json({
-    data: data,
-  });
-});
+//   res.json({
+//     data: data,
+//   });
+// });
 
 //Tạo cuốc xe mới ( đã hoàn thành)
 
@@ -46,7 +46,7 @@ router.post('/', async (req, res) => {
   } catch (error) {}
 });
 
-//cập nhật status của chuyến đi khi nhận cuốc ( đã hoàn thành)
+//cập nhật status của chuyến đi khi nhận cuốc ( đã hoàn thành) vaf log duoc nhat ky giao dich khi nhan cuoc
 
 router.patch('/:id', checkMoneyMiddleware, async (req, res) => {
   const tripId = req.params.id;
@@ -69,13 +69,27 @@ router.patch('/:id', checkMoneyMiddleware, async (req, res) => {
       { new: true } // Trả về document sau khi cập nhật
     );
 
+    try {
+      const currentDate = new Date();
+      const transaction = {
+        driverID: implementer.userID,
+        tripID: existingTrip._id,
+        timeStamp: currentDate,
+        transactionType: 'Nhận chuyến',
+        amount: `${'-'} ${existingTrip.price}`,
+      };
+
+      await db.Transaction.insertOne(transaction);
+    } catch (error) {
+      console.log(error);
+    }
     res.json({
       message: 'Đã nhận cuốc',
       exitingTrip: existingTrip,
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
-    console.log(error);
+    // console.log(error);
   }
 });
 
@@ -103,6 +117,21 @@ router.patch('/cancel/:id', async (req, res) => {
       }, // Giảm số dư tài khoản
       { new: true } // Trả về document sau khi cập nhật
     );
+
+    try {
+      const currentDate = new Date();
+      const transaction = {
+        driverID: implementer.userID,
+        tripID: existingTrip._id,
+        timeStamp: currentDate,
+        transactionType: 'Hủy Chuyến',
+        amount: `${'+'} ${existingTrip.price}`,
+      };
+
+      await db.Transaction.insertOne(transaction);
+    } catch (error) {
+      console.log(error);
+    }
 
     res.json({
       message: 'Đã nhận cuốc',
