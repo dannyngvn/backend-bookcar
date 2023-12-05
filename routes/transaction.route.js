@@ -76,45 +76,52 @@ router.post('/checkout', async (req, res) => {
 
     // Hiển thị ngày theo định dạng 'dd/mm/yyyy'
     let formattedDate = day + '/' + month + '/' + year;
-    const response = await axios.get(
-      `https://online.mbbank.com.vn/api/retail-web-transactionservice/transaction/getTransactionAccountHistory`,
-      {
-        accountNo: '0912222821',
-        fromDate: formattedDate,
-        toDate: formattedDate,
-        sessionId: 'b07dc10c-faab-4470-aecf-dde9fb5e959f',
-        refNo: '0912222821-2023120501180987',
-        deviceIdCommon: 'b2foes6s-mbib-0000-0000-2023120412444158',
-      },
-      {
-        headers: {
-          Connection: 'keep-alive',
-          Host: 'online.mbbank.com.vn',
-          Origin: 'https://online.mbbank.com.vn',
-          Referer:
-            'https://online.mbbank.com.vn/information-account/source-account',
-          'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-          Authorization:
-            'Basic RU1CUkVUQUlMV0VCOlNEMjM0ZGZnMzQlI0BGR0AzNHNmc2RmNDU4NDNm',
+    const getHistory = async () => {
+      const response = await axios.get(
+        `https://online.mbbank.com.vn/api/retail-web-transactionservice/transaction/getTransactionAccountHistory`,
+        {
+          accountNo: '0912222821',
+          fromDate: formattedDate,
+          toDate: formattedDate,
+          sessionId: tokeLogin,
+          refNo: '0912222821-2023120501180987',
+          deviceIdCommon: 'b2foes6s-mbib-0000-0000-2023120412444158',
         },
-      }
-    );
-    const data = response.data.transactionHistoryList;
-    let checkMoney = data.some(item => {
-      item.description === valueDeposit.infor &&
-        item.creditAmount === description.amount;
-    });
-
-    if (checkMoney) {
-      res.json({
-        message: 'Nạp tiền thành công',
+        {
+          headers: {
+            Connection: 'keep-alive',
+            Host: 'online.mbbank.com.vn',
+            Origin: 'https://online.mbbank.com.vn',
+            Referer:
+              'https://online.mbbank.com.vn/information-account/source-account',
+            'User-Agent':
+              'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+            Authorization:
+              'Basic RU1CUkVUQUlMV0VCOlNEMjM0ZGZnMzQlI0BGR0AzNHNmc2RmNDU4NDNm',
+          },
+        }
+      );
+      const data = response.data.transactionHistoryList;
+      let checkMoney = data.some(item => {
+        item.description === valueDeposit.infor &&
+          item.creditAmount === description.amount;
       });
-    }
+
+      if (checkMoney) {
+        res.json({
+          message: 'Nạp tiền thành công',
+        });
+        clearInterval(interval);
+      }
+    };
 
     //creditAmount là số tiền nhận được
     //description là nội dung
   } catch (error) {}
+  let interval = setInterval(getHistory, 1000);
+  setTimeout(() => {
+    clearInterval(interval);
+  }, 5 * 60 * 1000);
 });
 
 export default router;
