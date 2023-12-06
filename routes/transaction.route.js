@@ -115,7 +115,7 @@ router.post('/checkout', async (req, res) => {
           accountNo: '0912222821',
           fromDate: '06/12/2023',
           toDate: '06/12/2023',
-          sessionId: '880acd4b-b7cf-4707-aac5-daf55b635a3d',
+          sessionId: '04e23dcd-3a67-4449-bc53-d8a3e8898af6',
           refNo: '0912222821-2023120501180987',
           deviceIdCommon: 'b2foes6s-mbib-0000-0000-2023120412444158',
         },
@@ -134,11 +134,12 @@ router.post('/checkout', async (req, res) => {
         }
       );
       const data = response.data.transactionHistoryList;
-      console.log(data);
+      // console.log('đây mảng trả về ', data);
       let checkMoney = data.some(item => {
-        return item.description.includes(valueDeposit.infor);
+        item.description.includes(valueDeposit.infor);
       });
-      console.log(checkMoney);
+      console.log(data);
+      console.log(typeof valueDeposit.infor);
 
       if (checkMoney) {
         res.json({
