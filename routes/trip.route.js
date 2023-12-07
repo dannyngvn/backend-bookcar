@@ -4,6 +4,23 @@ import { checkMoneyMiddleware } from '../middlewares/checkMoney.middleware.js';
 import { db } from '../db.js';
 
 const router = express.Router();
+let today = new Date();
+
+// Lấy thông tin ngày, tháng và năm
+let day = today.getDate();
+let month = today.getMonth() + 1; // Tháng bắt đầu từ 0 nên cần cộng thêm 1
+let year = today.getFullYear();
+
+// Định dạng lại để có dạng 'dd/mm/yyyy'
+if (day < 10) {
+  day = '0' + day; // Thêm số 0 phía trước nếu ngày chỉ có một chữ số
+}
+if (month < 10) {
+  month = '0' + month; // Thêm số 0 phía trước nếu tháng chỉ có một chữ số
+}
+
+// Hiển thị ngày theo định dạng 'dd/mm/yyyy'
+let formattedDate = day + '/' + month + '/' + year;
 
 // lấy toàn bộ cuốc xe ( đã hoàn thành )
 
@@ -70,11 +87,10 @@ router.patch('/:id', checkMoneyMiddleware, async (req, res) => {
     );
 
     try {
-      const currentDate = new Date();
       const transaction = {
         driverID: implementer.userID,
         tripID: existingTrip._id,
-        timeStamp: currentDate,
+        timeStamp: formattedDate,
         transactionType: 'Nhận chuyến',
         amount: `${'-'} ${existingTrip.price}`,
       };
@@ -119,11 +135,10 @@ router.patch('/cancel/:id', async (req, res) => {
     );
 
     try {
-      const currentDate = new Date();
       const transaction = {
         driverID: implementer.userID,
         tripID: existingTrip._id,
-        timeStamp: currentDate,
+        timeStamp: formattedDate,
         transactionType: 'Hủy Chuyến',
         amount: `${'+'} ${existingTrip.price}`,
       };
