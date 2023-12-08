@@ -19,7 +19,7 @@ router.get('/:userId', async (req, res) => {
 //thực hiện thanh toán tự động
 router.post('/checkout', async (req, res) => {
   const { valueDeposit } = req.body;
-
+  // let sessionId = null;
   let today = new Date();
 
   // Lấy thông tin ngày, tháng và năm
@@ -37,14 +37,87 @@ router.post('/checkout', async (req, res) => {
 
   // Hiển thị ngày theo định dạng 'dd/mm/yyyy'
   let formattedDate = day + '/' + month + '/' + year;
+  const getCapcha = async () => {
+    const response = await axios.post(
+      'https://online.mbbank.com.vn/api/retail-web-internetbankingms/getCaptchaImage',
+      {
+        deviceIdCommon: 'b2foes6s-mbib-0000-0000-2023120412444158',
+        refNo: '2023120420144551',
+        sessionId: '',
+      },
+      {
+        headers: {
+          Connection: 'keep-alive',
+          Host: 'online.mbbank.com.vn',
+          Origin: 'https://online.mbbank.com.vn',
+          Referer: 'https://online.mbbank.com.vn/pl/login?returnUrl=%2F',
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+          Authorization:
+            'Basic RU1CUkVUQUlMV0VCOlNEMjM0ZGZnMzQlI0BGR0AzNHNmc2RmNDU4NDNm',
+        },
+      }
+    );
+    const capcha = response.data.imageString;
+
+    return capcha;
+  };
+
+  const antiCapcha = async () => {
+    const response = await axios.post('https://anticaptcha.top/api/captcha', {
+      apikey: '98c74c1d4837f7148672f4765ca060b5',
+      img: `data:image/png;base64,${await getCapcha()}`,
+      type: 18,
+    });
+
+    const decodeCapcha = response.data.captcha;
+
+    return decodeCapcha;
+  };
+
+  const getToken = async () => {
+    const response = await axios.post(
+      'https://online.mbbank.com.vn/api/retail_web/internetbanking/doLogin',
+      {
+        captcha: await antiCapcha(),
+        deviceIdCommon: 'b2foes6s-mbib-0000-0000-2023120412444158',
+        password: '5a44de2a906fb920edbc944997eeb202',
+        refNo: '63c8f1254c577525f74d124a30a15b4c-2023120621385740',
+
+        userId: '0912222821',
+      },
+      {
+        headers: {
+          Connection: 'keep-alive',
+          Host: 'online.mbbank.com.vn',
+          Origin: 'https://online.mbbank.com.vn',
+          Referer:
+            'https://online.mbbank.com.vn/information-account/source-account',
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+          Authorization:
+            'Basic RU1CUkVUQUlMV0VCOlNEMjM0ZGZnMzQlI0BGR0AzNHNmc2RmNDU4NDNm',
+        },
+      }
+    );
+    const token = response.data.sessionId;
+    console.log('dayla token ', token);
+
+    global.sessionId = token;
+  };
+
+  await getToken();
+
   const getHistory = async () => {
+    console.log('day la ssid ', sessionId);
+    console.log(formattedDate);
     const response = await axios.post(
       `https://online.mbbank.com.vn/api/retail-web-transactionservice/transaction/getTransactionAccountHistory`,
       {
         accountNo: '0912222821',
         fromDate: formattedDate,
         toDate: formattedDate,
-        sessionId: 'd2525d90-3405-4842-8603-8b8a9ef7c51d',
+        sessionId: sessionId,
         refNo: '0912222821-2023120501180987',
         deviceIdCommon: 'b2foes6s-mbib-0000-0000-2023120412444158',
       },
