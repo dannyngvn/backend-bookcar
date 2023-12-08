@@ -26,28 +26,11 @@ let formattedDate = day + '/' + month + '/' + year;
 
 router.get('/', async (req, res) => {
   const data = await db.Trip.find({}).toArray();
-  // console.log(req.headers);
+
   res.json({
     data: data,
   });
 });
-
-// lấy dữ liệu cuốc xe tài xế chọn ( đã hoàn thành )
-
-// router.get('/:id', async (req, res) => {
-//   const tripId = req.params.id;
-//   const data = await db.Trip.findOne({ _id: new ObjectId(tripId) });
-
-//   if (data.status === 'processing') {
-//     return res.json({
-//       message: 'Đã có tài xế nhận cuốc này',
-//     });
-//   }
-
-//   res.json({
-//     data: data,
-//   });
-// });
 
 //Tạo cuốc xe mới ( đã hoàn thành)
 
