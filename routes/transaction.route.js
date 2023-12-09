@@ -104,6 +104,9 @@ router.post('/checkout', async (req, res) => {
     console.log('dayla token ', token);
 
     global.sessionId = token;
+    // setTimeout(() => {
+    //   delete global.sessionId; // Xóa biến global sau 5 phút
+    // }, 5 * 60 * 1000); // 5 phút = 5 * 60 * 1000 milliseconds
   };
 
   await getToken();
