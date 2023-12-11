@@ -53,42 +53,46 @@ router.patch('/:id', checkMoneyMiddleware, async (req, res) => {
   const implementer = req.body;
 
   try {
-    const existingTrip = await db.Trip.findOneAndUpdate(
-      { _id: new ObjectId(tripId) }, // Sử dụng _id để tìm chuyến đi cụ thể
-      { $set: { status: 'processing', implementer: implementer.userID } },
-      { new: true } // Trả về document sau khi cập nhật
-    );
+    const existingTrip = await db.Trip.findOne({ _id: new ObjectId(tripId) });
+    console.log(existingTrip);
+    if (existingTrip.implementer) {
+      // Nếu trường implementer đã có dữ liệu, trả về thông báo hoặc thông tin phù hợp
+      return res.json({ message: false });
+    } else {
+      const addimplementer = await db.Trip.findOneAndUpdate(
+        { _id: new ObjectId(tripId) }, // Sử dụng _id để tìm chuyến đi cụ thể
+        { $set: { status: 'processing', implementer: implementer.userID } },
+        { new: true } // Trả về document sau khi cập nhật
+      );
 
-    const existingUser = await db.Users.findOneAndUpdate(
-      { _id: new ObjectId(implementer.userID) }, // Sử dụng userID để tìm người dùng cụ thể
-      {
-        $inc: {
-          accountBalance: -existingTrip.price,
-        },
-      }, // Giảm số dư tài khoản
-      { new: true } // Trả về document sau khi cập nhật
-    );
+      const existingUser = await db.Users.findOneAndUpdate(
+        { _id: new ObjectId(implementer.userID) }, // Sử dụng userID để tìm người dùng cụ thể
+        {
+          $inc: {
+            accountBalance: -existingTrip.price,
+          },
+        }, // Giảm số dư tài khoản
+        { new: true } // Trả về document sau khi cập nhật
+      );
 
-    try {
-      const transaction = {
-        driverID: implementer.userID,
-        tripID: existingTrip._id,
-        timeStamp: formattedDate,
-        transactionType: 'Nhận chuyến',
-        amount: `${'-'} ${existingTrip.price}`,
-      };
+      try {
+        const transaction = {
+          driverID: implementer.userID,
+          tripID: existingTrip._id,
+          timeStamp: formattedDate,
+          transactionType: 'Nhận chuyến',
+          amount: `${'-'} ${existingTrip.price}`,
+        };
 
-      await db.Transaction.insertOne(transaction);
-    } catch (error) {
-      console.log(error);
+        await db.Transaction.insertOne(transaction);
+      } catch (error) {
+        console.log(error);
+      }
+      res.json({ message: true });
     }
-    res.json({
-      message: 'Đã nhận cuốc',
-      exitingTrip: existingTrip,
-    });
   } catch (error) {
     res.status(500).json({ error: error.message });
-    // console.log(error);
+    console.log(error);
   }
 });
 
