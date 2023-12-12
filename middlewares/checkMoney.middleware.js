@@ -16,7 +16,8 @@ export const checkMoneyMiddleware = async (req, res, next) => {
     }
 
     if (priceTrip.price > moneyUser.accountBalance) {
-      return res.status(400).json({
+      console.log('het tien');
+      return res.json({
         message: 'Vui lòng nạp thêm tiền',
       });
     }
