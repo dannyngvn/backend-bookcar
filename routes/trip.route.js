@@ -46,6 +46,28 @@ router.post('/', async (req, res) => {
   } catch (error) {}
 });
 
+//Chỉnh sửa chuyến đi
+router.patch('/edit', async (req, res) => {
+  const data = req.body;
+  const id = data._id;
+
+  try {
+    console.log(data);
+    delete data._id;
+    await db.Trip.findOneAndUpdate(
+      { _id: new ObjectId(id) }, // Sử dụng _id để tìm chuyến đi cụ thể
+      { $set: data },
+      { new: true } // Trả về document sau khi cập nhật
+    );
+
+    res.json({
+      message: 'Cập nhật thành công',
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 //cập nhật status của chuyến đi khi nhận cuốc ( đã hoàn thành) vaf log duoc nhat ky giao dich khi nhan cuoc
 
 router.patch('/:id', checkMoneyMiddleware, async (req, res) => {
