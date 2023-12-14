@@ -109,8 +109,6 @@ router.post('/checkout', async (req, res) => {
     // }, 5 * 60 * 1000); // 5 phút = 5 * 60 * 1000 milliseconds
   };
 
-  await getToken();
-
   const getHistory = async () => {
     console.log('day la ssid ', sessionId);
     console.log(formattedDate);
@@ -139,6 +137,10 @@ router.post('/checkout', async (req, res) => {
       }
     );
     const data = response.data.transactionHistoryList;
+    const checkSSID = response.data.result.ok;
+    if (!checkSSID) {
+      await getToken();
+    }
     console.log('đây mảng trả về ', data);
     let checkMoney = data.some(item => {
       return item.description.includes(valueDeposit.infor);
