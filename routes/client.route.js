@@ -42,17 +42,18 @@ router.post('/price', async (req, res) => {
       console.log('Không thể xác định khoảng cách.');
     }
 
-    // Gửi thông tin khoảng cách về cho client chỉ khi có dữ liệu
-    // if (distanceValue !== null) {
-    //   res.json({ distance: distanceValue });
-    // } else {
-    //   res.status(400).json({ error: 'Không thể xác định khoảng cách.' });
-    // }
     console.log(`Khoảng cách giữa hai điểm là: ${distanceValue}`);
     const priceOneLap = distanceValue * 10000;
     const priceTowLap = distanceValue * 10000 + distanceValue * 5000;
     console.log('day là gia 2 chieu khong vat', priceTowLap);
     console.log(priceOneLap);
+    if (data.pickUpPoint === null && data.dropOffPoint === null) {
+      return console.log('nap diem den va diem di');
+
+      // return res.json({
+      //   message: 'Vui lòng nhập điểm đến điểm đi',
+      // });
+    }
     if (data.lap && data.vat) {
       const priceTowLapVat = priceTowLap + priceTowLap * 0.1;
       return res.json({
