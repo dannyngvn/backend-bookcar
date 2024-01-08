@@ -37,7 +37,9 @@ router.post('/price', async (req, res) => {
       response.data.routes.length > 0
     ) {
       const distanceText = response.data.routes[0].legs[0].distance.text;
-      distanceValue = parseFloat(distanceText);
+      distanceValue = parseFloat(
+        distanceText.replace(/[^\d.]/g, '').replace(',', '.')
+      );
     } else {
       console.log('Không thể xác định khoảng cách.');
     }
@@ -48,36 +50,36 @@ router.post('/price', async (req, res) => {
     console.log('day là gia 2 chieu khong vat', priceTowLap);
     console.log(priceOneLap);
     if (data.pickUpPoint === null && data.dropOffPoint === null) {
-      return console.log('nap diem den va diem di');
-
-      // return res.json({
-      //   message: 'Vui lòng nhập điểm đến điểm đi',
-      // });
+      return res.json({
+        message: 'Vui lòng nhập điểm đến điểm đi',
+      });
     }
     if (data.lap && data.vat) {
-      const priceTowLapVat = priceTowLap + priceTowLap * 0.1;
+      const price = priceTowLap + priceTowLap * 0.1;
       return res.json({
         message: 'đặt xe thành công 2 chieu kem VAT',
-        priceTowLapVat,
+        price,
       });
     }
     if (data.lap && !data.vat) {
+      const price = priceTowLap;
       return res.json({
         message: 'đặt xe thành công 2 chieu ko kem VAT',
-        priceTowLap,
+        price,
       });
     }
     if (!data.lap && data.vat) {
-      const priceOneLapVat = priceOneLap + priceOneLap * 0.1;
+      const price = priceOneLap + priceOneLap * 0.1;
       return res.json({
         message: 'đặt xe thành công 1 chieu kem VAT',
-        priceOneLapVat,
+        price,
       });
     }
     if (!data.lap && !data.vat) {
+      const price = priceOneLap;
       return res.json({
         message: 'đặt xe thành công 1 chieu ko kem VAT',
-        priceOneLap,
+        price,
       });
     }
   } catch (error) {
