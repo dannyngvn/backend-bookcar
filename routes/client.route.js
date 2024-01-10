@@ -19,6 +19,39 @@ router.post('/bookcar', async (req, res) => {
   } catch (error) {}
 });
 
+router.get('/booklist', async (req, res) => {
+  const data = await db.Trip.find({}).toArray();
+
+  const modifiedData = data.map(
+    ({ clientName, clientPhone, dropOffAddress, _id }) => {
+      // Check if the clientPhone has at least 3 characters
+      if (clientPhone.length >= 3) {
+        const hiddenDigits =
+          '*'.repeat(clientPhone.length - 3) + clientPhone.slice(-3);
+        // Return modified object with hidden clientPhone
+        return {
+          clientName,
+          clientPhone: hiddenDigits,
+          dropOffAddress,
+          _id,
+        };
+      } else {
+        // Return original object if clientPhone has less than 3 characters
+        return {
+          clientName,
+          clientPhone,
+          dropOffAddress,
+          _id,
+        };
+      }
+    }
+  );
+
+  res.json({
+    data: modifiedData,
+  });
+});
+
 //api tinh tien gia xe
 router.post('/price', async (req, res) => {
   const data = req.body;
