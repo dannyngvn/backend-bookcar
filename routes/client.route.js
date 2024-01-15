@@ -79,7 +79,7 @@ router.post('/price', async (req, res) => {
     }
 
     console.log(`Khoảng cách giữa hai điểm là 2: ${distanceValue}`);
-    const car4hat = distanceValue * 7000;
+    const car4hat = distanceValue * 8000;
     const car4 = distanceValue * 9000;
     const car7 = distanceValue * 11000;
     const car9 = distanceValue * 12000;
