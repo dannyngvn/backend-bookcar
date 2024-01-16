@@ -19,7 +19,7 @@ router.get('/:userId', async (req, res) => {
 //thực hiện thanh toán tự động
 router.post('/checkout', async (req, res) => {
   const { valueDeposit } = req.body;
-  // let sessionId = null;
+
   let today = new Date();
 
   // Lấy thông tin ngày, tháng và năm
@@ -107,14 +107,13 @@ router.post('/checkout', async (req, res) => {
     console.log('dayla token ', token);
 
     global.sessionId = token;
-    // setTimeout(() => {
-    //   delete global.sessionId; // Xóa biến global sau 5 phút
-    // }, 5 * 60 * 1000); // 5 phút = 5 * 60 * 1000 milliseconds
   };
 
+  getToken();
   const getHistory = async () => {
     console.log('day la ssid ', sessionId);
-    console.log(formattedDate);
+    console.log(formattedDate, formattedDate);
+
     const response = await axios.post(
       `https://online.mbbank.com.vn/api/retail-transactionms/transactionms/get-account-transaction-history`,
       {
@@ -122,8 +121,8 @@ router.post('/checkout', async (req, res) => {
         fromDate: formattedDate,
         toDate: formattedDate,
         sessionId: sessionId,
-        refNo: '0912222821-2024011621370832',
-        deviceIdCommon: '0l224vhw-mbib-0000-0000-2024011621001562',
+        refNo: '0912222821-2024011622503914',
+        deviceIdCommon: 'b2foes6s-mbib-0000-0000-2023120412444158',
       },
       {
         headers: {
@@ -137,15 +136,16 @@ router.post('/checkout', async (req, res) => {
           Authorization:
             'Basic RU1CUkVUQUlMV0VCOlNEMjM0ZGZnMzQlI0BGR0AzNHNmc2RmNDU4NDNm',
           'Content-Type': 'application/json; charset=utf-8',
-          Refno: '0912222821-2024011622123959',
+          Refno: '0912222821-2024011622503914',
           Deviceid: '0l224vhw-mbib-0000-0000-2024011621001562',
         },
       }
     );
     const dataHistory = response.data.transactionHistoryList;
     const checkSSID = response.data.result.ok;
-    if (!checkSSID) {
-      await getToken();
+    console.log(checkSSID);
+    if (checkSSID === false) {
+      getToken();
     }
     console.log('đây mảng trả về ', dataHistory);
     let checkMoney = dataHistory.some(item => {
