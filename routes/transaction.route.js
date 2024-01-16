@@ -81,13 +81,16 @@ router.post('/checkout', async (req, res) => {
       {
         captcha: await antiCapcha(),
         deviceIdCommon: 'b2foes6s-mbib-0000-0000-2023120412444158',
-        password: '5a44de2a906fb920edbc944997eeb202',
+        password: '3702935ef883958108f553971fe3c167',
         refNo: '63c8f1254c577525f74d124a30a15b4c-2023120621385740',
 
         userId: '0912222821',
       },
       {
         headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          Refno: '0912222821-2024011622123959',
+          Deviceid: '0l224vhw-mbib-0000-0000-2024011621001562',
           Connection: 'keep-alive',
           Host: 'online.mbbank.com.vn',
           Origin: 'https://online.mbbank.com.vn',
@@ -113,14 +116,14 @@ router.post('/checkout', async (req, res) => {
     console.log('day la ssid ', sessionId);
     console.log(formattedDate);
     const response = await axios.post(
-      `https://online.mbbank.com.vn/api/retail-web-transactionservice/transaction/getTransactionAccountHistory`,
+      `https://online.mbbank.com.vn/api/retail-transactionms/transactionms/get-account-transaction-history`,
       {
         accountNo: '0912222821',
         fromDate: formattedDate,
         toDate: formattedDate,
         sessionId: sessionId,
-        refNo: '0912222821-2023120501180987',
-        deviceIdCommon: 'b2foes6s-mbib-0000-0000-2023120412444158',
+        refNo: '0912222821-2024011621370832',
+        deviceIdCommon: '0l224vhw-mbib-0000-0000-2024011621001562',
       },
       {
         headers: {
@@ -133,16 +136,19 @@ router.post('/checkout', async (req, res) => {
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
           Authorization:
             'Basic RU1CUkVUQUlMV0VCOlNEMjM0ZGZnMzQlI0BGR0AzNHNmc2RmNDU4NDNm',
+          'Content-Type': 'application/json; charset=utf-8',
+          Refno: '0912222821-2024011622123959',
+          Deviceid: '0l224vhw-mbib-0000-0000-2024011621001562',
         },
       }
     );
-    const data = response.data.transactionHistoryList;
+    const dataHistory = response.data.transactionHistoryList;
     const checkSSID = response.data.result.ok;
     if (!checkSSID) {
       await getToken();
     }
-    console.log('đây mảng trả về ', data);
-    let checkMoney = data.some(item => {
+    console.log('đây mảng trả về ', dataHistory);
+    let checkMoney = dataHistory.some(item => {
       return item.description.includes(valueDeposit.infor);
     });
 
