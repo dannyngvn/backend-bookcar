@@ -197,7 +197,7 @@ router.post('/checkout', async (req, res) => {
     }
   };
 
-  let interval = setInterval(getHistory, 1000);
+  let interval = setInterval(getHistory, 5000);
   setTimeout(() => {
     clearInterval(interval);
   }, 5 * 60 * 1000);
