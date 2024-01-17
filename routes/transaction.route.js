@@ -2,8 +2,16 @@ import express from 'express';
 import { db } from '../db.js';
 import { ObjectId } from 'mongodb';
 import axios from 'axios';
+import session from 'express-session';
 
 const router = express.Router();
+router.use(
+  session({
+    secret: 'your-secret-key', // Thay đổi thành một khóa bí mật an toàn hơn
+    resave: false,
+    saveUninitialized: true,
+  })
+);
 
 //get all giao dịch của tùng user
 router.get('/:userId', async (req, res) => {
@@ -103,16 +111,22 @@ router.post('/checkout', async (req, res) => {
         },
       }
     );
-    const token = response.data.sessionId;
-    console.log('dayla token ', token);
+    req.session.sessionIdMb = response.data.sessionId;
 
-    global.sessionId = token;
+    console.log('login thanh cong', req.session.sessionIdMb);
   };
 
-  getToken();
   const getHistory = async () => {
-    console.log('day la ssid ', sessionId);
-    console.log(formattedDate, formattedDate);
+    const sessionId = req.session.sessionIdMb;
+    if (
+      typeof sessionId === 'undefined' ||
+      sessionId === false ||
+      sessionId === null
+    ) {
+      getToken();
+      return;
+    }
+    console.log('ssid', sessionId);
 
     const response = await axios.post(
       `https://online.mbbank.com.vn/api/retail-transactionms/transactionms/get-account-transaction-history`,
@@ -144,7 +158,8 @@ router.post('/checkout', async (req, res) => {
     const dataHistory = response.data.transactionHistoryList;
     const checkSSID = response.data.result.ok;
     console.log(checkSSID);
-    if (checkSSID === false) {
+    console.log(dataHistory);
+    if (!checkSSID) {
       getToken();
     }
     console.log('đây mảng trả về ', dataHistory);
@@ -186,8 +201,6 @@ router.post('/checkout', async (req, res) => {
   setTimeout(() => {
     clearInterval(interval);
   }, 5 * 60 * 1000);
-  //creditAmount là số tiền nhận được
-  //description là nội dung
 });
 
 export default router;
