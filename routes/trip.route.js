@@ -32,6 +32,16 @@ router.get('/', async (req, res) => {
   });
 });
 
+//chon cuoc xe da chon
+router.get('/:id', async (req, res) => {
+  const tripId = req.params.id;
+  const data = await db.Trip.findOne({ _id: new ObjectId(tripId) });
+
+  res.json({
+    data: data,
+  });
+});
+
 //Tạo cuốc xe mới ( đã hoàn thành)
 
 router.post('/', async (req, res) => {

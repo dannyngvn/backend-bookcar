@@ -11,10 +11,10 @@ const router = express.Router();
 
 router.use(logAPI);
 
-router.use('/trip', authMiddleware, tripRouter);
+router.use('/trip', tripRouter);
 router.use('/transaction', authMiddleware, transactionRouter);
 router.use('/auth', authRouter);
 router.use('/client', clientRouter);
-router.use('/admin', authMiddleware, adminRouter);
+router.use('/admin', adminRouter);
 
 export default router;
