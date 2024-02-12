@@ -32,7 +32,7 @@ router.post('/login', async (req, res) => {
     vehicle: existingUser.vehicle,
     licensePlates: existingUser.licensePlates,
     accountBalance: existingUser.accountBalance,
-    role: existingUser.role,
+
     existingUser,
   };
 
@@ -45,7 +45,6 @@ router.post('/login', async (req, res) => {
     id: existingUser._id,
     user: jwtPayload,
     accessToken: token,
-    role: role,
   });
 });
 
