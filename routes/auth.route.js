@@ -7,7 +7,11 @@ const router = express.Router();
 router.post('/login', async (req, res) => {
   const { phoneNumber, password } = req.body;
   //kiểm tra xem người dùng có gửi đầy đủ tên đăng nhập và mật khẩu không ?
-  if (!phoneNumber || !password) {
+  if (
+    !phoneNumber ||
+    password ===
+      'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+  ) {
     return res.status(400).json({
       message: 'Vui lòng nhập id và mật khẩu',
     });
@@ -15,7 +19,10 @@ router.post('/login', async (req, res) => {
 
   // lấy dữ liệu người đùng dựa trên tên đăng nhập và mật khẩu đã được gửi lên
 
-  const existingUser = await db.Users.findOne({ phoneNumber: phoneNumber });
+  const existingUser = await db.Users.findOne({
+    phoneNumber: phoneNumber,
+    password: password,
+  });
 
   // kiểm tra xem  người dùng có tồn tại hay không
   if (!existingUser) {

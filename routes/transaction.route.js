@@ -45,6 +45,7 @@ router.post('/checkout', async (req, res) => {
 
   // Hiển thị ngày theo định dạng 'dd/mm/yyyy'
   let formattedDate = day + '/' + month + '/' + year;
+  let formattYesterday = day - 1 + '/' + month + '/' + year;
   const getCapcha = async () => {
     const response = await axios.post(
       'https://online.mbbank.com.vn/api/retail-web-internetbankingms/getCaptchaImage',
@@ -112,27 +113,22 @@ router.post('/checkout', async (req, res) => {
       }
     );
     req.session.sessionIdMb = response.data.sessionId;
-
-    console.log('login thanh cong', req.session.sessionIdMb);
   };
 
   const getHistory = async () => {
     const sessionId = req.session.sessionIdMb;
-    if (
-      typeof sessionId === 'undefined' ||
-      sessionId === false ||
-      sessionId === null
-    ) {
+    console.log('sessionId: ', sessionId);
+    if (!sessionId) {
+      console.log('lay token khi chua co ssid');
       getToken();
       return;
     }
-    console.log('ssid', sessionId);
 
     const response = await axios.post(
       `https://online.mbbank.com.vn/api/retail-transactionms/transactionms/get-account-transaction-history`,
       {
         accountNo: '0912222821',
-        fromDate: formattedDate,
+        fromDate: formattYesterday,
         toDate: formattedDate,
         sessionId: sessionId,
         refNo: '0912222821-2024011622503914',
@@ -157,18 +153,19 @@ router.post('/checkout', async (req, res) => {
     );
     const dataHistory = response.data.transactionHistoryList;
     const checkSSID = response.data.result.ok;
-    console.log(checkSSID);
-    console.log(dataHistory);
+    console.log('kiem tra ssid con hieu luc khong ? ', checkSSID);
+
     if (!checkSSID) {
+      console.log('SSID het hieu luc lay lai ssid');
       getToken();
+      return;
     }
-    console.log('đây mảng trả về ', dataHistory);
+
     let checkMoney = dataHistory.some(item => {
       return item.description.includes(valueDeposit.infor);
     });
 
-    console.log(valueDeposit.infor);
-    console.log(checkMoney);
+    console.log('ma ck: ', valueDeposit.infor);
 
     if (checkMoney) {
       res.json({
