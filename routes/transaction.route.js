@@ -2,16 +2,12 @@ import express from 'express';
 import { db } from '../db.js';
 import { ObjectId } from 'mongodb';
 import axios from 'axios';
-import session from 'express-session';
+
+import storage from 'node-persist';
+
+storage.init();
 
 const router = express.Router();
-router.use(
-  session({
-    secret: 'your-secret-key', // Thay đổi thành một khóa bí mật an toàn hơn
-    resave: false,
-    saveUninitialized: true,
-  })
-);
 
 //get all giao dịch của tùng user
 router.get('/:userId', async (req, res) => {
@@ -112,16 +108,16 @@ router.post('/checkout', async (req, res) => {
         },
       }
     );
-    req.session.sessionIdMb = response.data.sessionId;
+    await storage.setItem('sessionId', response.data.sessionId);
   };
 
   const getHistory = async () => {
-    const sessionId = req.session.sessionIdMb;
+    const sessionId = await storage.getItem('sessionId');
+
     console.log('sessionId: ', sessionId);
     if (!sessionId) {
       console.log('lay token khi chua co ssid');
       getToken();
-      return;
     }
 
     const response = await axios.post(
@@ -154,6 +150,7 @@ router.post('/checkout', async (req, res) => {
     const dataHistory = response.data.transactionHistoryList;
     const checkSSID = response.data.result.ok;
     console.log('kiem tra ssid con hieu luc khong ? ', checkSSID);
+    console.log('dạnh sach mang tra ve', dataHistory);
 
     if (!checkSSID) {
       console.log('SSID het hieu luc lay lai ssid');
@@ -162,10 +159,11 @@ router.post('/checkout', async (req, res) => {
     }
 
     let checkMoney = dataHistory.some(item => {
-      return item.description.includes(valueDeposit.infor);
+      return item.addDescription.toLowerCase().includes(valueDeposit.infor);
     });
 
     console.log('ma ck: ', valueDeposit.infor);
+    console.log('kiem tra da co giao dich chua', checkMoney);
 
     if (checkMoney) {
       res.json({
