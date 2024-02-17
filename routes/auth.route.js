@@ -1,9 +1,52 @@
 import express from 'express';
 import Jwt from 'jsonwebtoken';
 import { db } from '../db.js';
+import multer from 'multer';
+
+const upload = multer({ dest: 'uploads/' });
 
 const router = express.Router();
+router.post(
+  '/register',
+  upload.fields([
+    { name: 'imageDriver', maxCount: 1 },
+    { name: 'imageCar', maxCount: 1 },
+  ]),
+  async (req, res) => {
+    try {
+      // Lấy đường dẫn của 2 hình ảnh từ req.files
+      const image1Path = req.files['imageDriver'][0].path;
+      const image2Path = req.files['imageCar'][0].path;
 
+      // Xử lý dữ liệu tài khoản từ req.body (nếu có)
+      const phoneNumber = req.body.phoneNumber;
+      const password = req.body.password;
+      const vehicle = req.body.vehicle;
+      const fullName = req.body.fullName;
+      const licensePlates = req.body.licensePlates;
+      const email = req.body.email;
+      const imageDriver = image1Path;
+      const imageCar = image2Path;
+
+      // Thực hiện các xử lý khác tại đây (ví dụ: lưu vào cơ sở dữ liệu)
+      await db.Users.insertOne({
+        phoneNumber,
+        password,
+        vehicle,
+        fullName,
+        licensePlates,
+        email,
+        imageDriver,
+        imageCar,
+      });
+      // Trả về phản hồi thành công
+      res.status(200).json({ message: 'Data received successfully' });
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+);
 router.post('/login', async (req, res) => {
   const { phoneNumber, password } = req.body;
   //kiểm tra xem người dùng có gửi đầy đủ tên đăng nhập và mật khẩu không ?
