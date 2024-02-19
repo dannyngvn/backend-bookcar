@@ -2,8 +2,18 @@ import express from 'express';
 import Jwt from 'jsonwebtoken';
 import { db } from '../db.js';
 import multer from 'multer';
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'public/uploads/');
+  },
+  filename: function (req, file, cb) {
+    // Giữ lại phần mở rộng của file
+    const ext = file.originalname.split('.').pop();
+    cb(null, file.fieldname + '-' + Date.now() + '.' + ext);
+  },
+});
 
-const upload = multer({ dest: 'uploads/' });
+const upload = multer({ storage: storage });
 
 const router = express.Router();
 router.post(
@@ -17,6 +27,8 @@ router.post(
       // Lấy đường dẫn của 2 hình ảnh từ req.files
       const image1Path = req.files['imageDriver'][0].path;
       const image2Path = req.files['imageCar'][0].path;
+      console.log(image1Path);
+      console.log(image2Path);
 
       // Xử lý dữ liệu tài khoản từ req.body (nếu có)
       const phoneNumber = req.body.phoneNumber;
