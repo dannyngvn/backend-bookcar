@@ -39,6 +39,7 @@ router.post(
       const email = req.body.email;
       const imageDriver = image1Path;
       const imageCar = image2Path;
+      const accountBalance = 0;
 
       // Thực hiện các xử lý khác tại đây (ví dụ: lưu vào cơ sở dữ liệu)
       await db.Users.insertOne({
@@ -50,6 +51,7 @@ router.post(
         email,
         imageDriver,
         imageCar,
+        accountBalance,
       });
       // Trả về phản hồi thành công
       res.status(200).json({ message: 'Data received successfully' });
