@@ -43,4 +43,27 @@ router.get('/:id', async (req, res) => {
     data: data,
   });
 });
+
+//Chỉnh sửa tài xế
+router.patch('/edit-driver', async (req, res) => {
+  const data = req.body;
+  const id = data._id;
+  console.log('edit-driver');
+
+  try {
+    console.log(data);
+    delete data._id;
+    await db.Users.findOneAndUpdate(
+      { _id: new ObjectId(id) }, // Sử dụng _id để tìm chuyến đi cụ thể
+      { $set: data },
+      { new: true } // Trả về document sau khi cập nhật
+    );
+
+    res.json({
+      message: 'Cập nhật thành công',
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
 export default router;

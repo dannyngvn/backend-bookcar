@@ -60,6 +60,7 @@ router.post('/', async (req, res) => {
 router.patch('/edit', async (req, res) => {
   const data = req.body;
   const id = data._id;
+  console.log('edit trip');
 
   try {
     console.log(data);
