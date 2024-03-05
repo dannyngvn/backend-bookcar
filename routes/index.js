@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.use(logAPI);
 
-router.use('/trip', tripRouter);
+router.use('/trip', authMiddleware, tripRouter);
 router.use('/transaction', authMiddleware, transactionRouter);
 router.use('/auth', authRouter);
 router.use('/client', clientRouter);

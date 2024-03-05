@@ -2,6 +2,7 @@ import express from 'express';
 import Jwt from 'jsonwebtoken';
 import { db } from '../db.js';
 import multer from 'multer';
+import { ObjectId } from 'mongodb';
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'public/uploads/');
@@ -16,6 +17,17 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 const router = express.Router();
+
+router.get('/:userID', async (req, res) => {
+  const userId = req.params.userID;
+  console.log(userId);
+  const data = await db.Users.findOne({ _id: new ObjectId(userId) });
+
+  res.json({
+    data: data,
+  });
+});
+
 router.post(
   '/register',
   upload.fields([
@@ -96,12 +108,10 @@ router.post('/login', async (req, res) => {
     vehicle: existingUser.vehicle,
     licensePlates: existingUser.licensePlates,
     accountBalance: existingUser.accountBalance,
-
-    existingUser,
   };
 
   const token = Jwt.sign(jwtPayload, process.env.SECRET_KEY, {
-    expiresIn: '10s',
+    expiresIn: '1000s',
   });
 
   res.json({

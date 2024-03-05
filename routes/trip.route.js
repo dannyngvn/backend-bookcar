@@ -32,6 +32,31 @@ router.get('/', async (req, res) => {
   });
 });
 
+//lây cuốc xe đang chạy và mình bắn
+router.get('/mytrip/:userID', async (req, res) => {
+  const userID = req.params.userID;
+  console.log(userID);
+  const data = await db.Trip.find({
+    originator: userID,
+  }).toArray();
+  res.json({
+    data: data,
+  });
+});
+
+//lay cuốc xe mình đang chạy
+router.get('/myprocessingtrip/:userID', async (req, res) => {
+  const userID = req.params.userID;
+  console.log(userID);
+  const data = await db.Trip.find({
+    implementer: userID,
+    status: 'processing',
+  }).toArray();
+
+  res.json({
+    data: data,
+  });
+});
 //chon cuoc xe da chon
 router.get('/:id', async (req, res) => {
   const tripId = req.params.id;
@@ -115,6 +140,8 @@ router.patch('/:id', checkMoneyMiddleware, async (req, res) => {
           timeStamp: formattedDate,
           transactionType: 'Nhận chuyến',
           amount: `${'-'} ${existingTrip.price}`,
+          pickUpAddress: existingTrip.pickUpAddress,
+          dropOffAddress: existingTrip.dropOffAddress,
         };
 
         await db.Transaction.insertOne(transaction);
@@ -161,6 +188,8 @@ router.patch('/cancel/:id', async (req, res) => {
         timeStamp: formattedDate,
         transactionType: 'Hủy Chuyến',
         amount: `${'+'} ${existingTrip.price}`,
+        pickUpAddress: existingTrip.pickUpAddress,
+        dropOffAddress: existingTrip.dropOffAddress,
       };
 
       await db.Transaction.insertOne(transaction);
@@ -210,6 +239,20 @@ router.patch('/complete/:id', async (req, res) => {
     res.status(500).json({ error: error.message });
     console.log(error);
   }
+});
+
+// lấy lịch sử cá nhân
+router.post('/history', async (req, res) => {
+  const { userID } = req.body;
+  console.log(userID);
+  const data = await db.Trip.find({
+    status: 'complete',
+    implementer: userID,
+  }).toArray();
+
+  res.json({
+    data: data,
+  });
 });
 
 // router.delete('/:id', (req, res) => {
