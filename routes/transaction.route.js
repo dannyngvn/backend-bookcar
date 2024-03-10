@@ -22,9 +22,20 @@ router.get('/:userId', async (req, res) => {
 //rút tiền
 router.post('/withdraw', async (req, res) => {
   const data = req.body;
+  const userID = data.userID;
+  const amount = data.amount;
   const amountFormat = data.amount.replace(/,/g, '');
   const withdrawValue = { ...data, amount: parseFloat(amountFormat) };
   try {
+    const existingUser = await db.Users.findOneAndUpdate(
+      { _id: new ObjectId(userID) }, // Sử dụng userID để tìm người dùng cụ thể
+      {
+        $inc: {
+          accountBalance: -amount,
+        },
+      }, // Giảm số dư tài khoản
+      { new: true } // Trả về document sau khi cập nhật
+    );
     await db.Transaction.insertOne(withdrawValue);
 
     res.json({
