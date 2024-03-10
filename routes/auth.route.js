@@ -5,7 +5,7 @@ import multer from 'multer';
 import { ObjectId } from 'mongodb';
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'public/uploads/');
+    cb(null, 'public');
   },
   filename: function (req, file, cb) {
     // Giữ lại phần mở rộng của file
