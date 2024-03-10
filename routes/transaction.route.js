@@ -25,7 +25,11 @@ router.post('/withdraw', async (req, res) => {
   const userID = data.userID;
   const amount = data.amount;
   const amountFormat = data.amount.replace(/,/g, '');
-  const withdrawValue = { ...data, amount: parseFloat(amountFormat) };
+  const withdrawValue = {
+    ...data,
+    amount: parseFloat(amountFormat),
+    status: 'pending',
+  };
   try {
     const existingUser = await db.Users.findOneAndUpdate(
       { _id: new ObjectId(userID) }, // Sử dụng userID để tìm người dùng cụ thể
