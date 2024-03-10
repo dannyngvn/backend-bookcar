@@ -230,6 +230,17 @@ router.patch('/complete/:id', async (req, res) => {
       }, // Giảm số dư tài khoản
       { new: true } // Trả về document sau khi cập nhật
     );
+    const transaction = {
+      driverID: originator.originator,
+      tripID: existingTrip._id,
+      timeStamp: formattedDate,
+      transactionType: 'Tiền từ cuốc bắn',
+      amount: `${'+'} ${existingTrip.price}`,
+      pickUpAddress: existingTrip.pickUpAddress,
+      dropOffAddress: existingTrip.dropOffAddress,
+    };
+
+    await db.Transaction.insertOne(transaction);
 
     res.json({
       message: 'Đã hoàn thành',
