@@ -19,6 +19,19 @@ router.get('/:userId', async (req, res) => {
 
   res.json({ transaction, moneyUser });
 });
+//rút tiền
+router.post('/withdraw', async (req, res) => {
+  const data = req.body;
+  const amountFormat = data.amount.replace(/,/g, '');
+  const withdrawValue = { ...data, amount: parseFloat(amountFormat) };
+  try {
+    await db.Transaction.insertOne(withdrawValue);
+
+    res.json({
+      message: 'Rút tiền thành công',
+    });
+  } catch (error) {}
+});
 
 //thực hiện thanh toán tự động
 router.post('/checkout', async (req, res) => {
