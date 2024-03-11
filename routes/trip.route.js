@@ -183,7 +183,7 @@ router.patch('/cancel/:id', async (req, res) => {
 
     try {
       const transaction = {
-        driverID: implementer.userID,
+        driverID: implementer,
         tripID: existingTrip._id,
         timeStamp: formattedDate,
         transactionType: 'Hủy Chuyến',
