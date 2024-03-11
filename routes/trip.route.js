@@ -109,21 +109,27 @@ router.patch('/edit', async (req, res) => {
 router.patch('/:id', checkMoneyMiddleware, async (req, res) => {
   const tripId = req.params.id;
   const implementer = req.body;
+  console.log(implementer);
 
   try {
     const existingTrip = await db.Trip.findOne({ _id: new ObjectId(tripId) });
-    console.log(existingTrip);
+    const existingUserImplementer = await db.Users.findOne({
+      _id: new ObjectId(implementer.userID),
+    });
+
     if (existingTrip.implementer) {
       // Nếu trường implementer đã có dữ liệu, trả về thông báo hoặc thông tin phù hợp
       return res.json({ message: false });
     } else {
       const addimplementer = await db.Trip.findOneAndUpdate(
         { _id: new ObjectId(tripId) }, // Sử dụng _id để tìm chuyến đi cụ thể
-        { $set: { status: 'processing', implementer: implementer.userID } },
+        {
+          $set: { status: 'processing', implementer: existingUserImplementer },
+        },
         { new: true } // Trả về document sau khi cập nhật
       );
 
-      const existingUser = await db.Users.findOneAndUpdate(
+      const existingUserEditBalance = await db.Users.findOneAndUpdate(
         { _id: new ObjectId(implementer.userID) }, // Sử dụng userID để tìm người dùng cụ thể
         {
           $inc: {
@@ -198,7 +204,7 @@ router.patch('/cancel/:id', async (req, res) => {
     }
 
     res.json({
-      message: 'Đã nhận cuốc',
+      message: 'đã hủy',
       exitingTrip: existingTrip,
     });
   } catch (error) {
@@ -255,16 +261,31 @@ router.patch('/complete/:id', async (req, res) => {
 // lấy lịch sử cá nhân
 router.post('/history', async (req, res) => {
   const { userID } = req.body;
-  console.log(userID);
-  const data = await db.Trip.find({
-    status: 'complete',
-    implementer: userID,
-  }).toArray();
-
+  console.log(userID, ' id lay lich su');
+  const data = await db.Trip.find(
+    { status: 'complete' },
+    {
+      implementer: {
+        $elemMatch: { _id: userID },
+      },
+    }
+  ).toArray();
+  console.log(data);
   res.json({
     data: data,
   });
 });
+
+// //Lấy dữ liệu tài xế nhận cuốc
+// router.get('/getimplementer/:implementer', async (req, res) => {
+//   const implementer = req.params.implementer;
+//   console.log(implementer, 'da lay tay xe');
+//   const data = await db.Users.findOne({ _id: new ObjectId(implementer) });
+
+//   res.json({
+//     data: data,
+//   });
+// });
 
 // router.delete('/:id', (req, res) => {
 //   const postId = req.params.id;
