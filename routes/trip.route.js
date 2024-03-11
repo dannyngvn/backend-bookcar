@@ -160,8 +160,8 @@ router.patch('/:id', checkMoneyMiddleware, async (req, res) => {
 
 router.patch('/cancel/:id', async (req, res) => {
   const tripId = req.params.id;
-  const implementer = req.body;
-  // console.log('day la id nguoi dung ', implementer.userID);
+  const implementer = req.body.implementer;
+  console.log('day la id nguoi dung ', implementer);
 
   try {
     const existingTrip = await db.Trip.findOneAndUpdate(
