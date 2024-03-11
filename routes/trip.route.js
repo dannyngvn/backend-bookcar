@@ -172,7 +172,7 @@ router.patch('/cancel/:id', async (req, res) => {
     // console.log('day la ', existingTrip);
 
     const existingUser = await db.Users.findOneAndUpdate(
-      { _id: new ObjectId(implementer.userID) }, // Sử dụng userID để tìm người dùng cụ thể
+      { _id: new ObjectId(implementer) }, // Sử dụng userID để tìm người dùng cụ thể
       {
         $inc: {
           accountBalance: +existingTrip.price,

@@ -21,15 +21,22 @@ router.get('/:userId', async (req, res) => {
 });
 //rút tiền
 router.post('/withdraw', async (req, res) => {
+  console.log('rut tien');
   const data = req.body;
   const userID = data.userID;
   const amount = data.amount;
-  const amountFormat = data.amount.replace(/,/g, '');
+  console.log(userID);
+
+  console.log(data, ' khi nhan len');
+
+  const amountFormat = amount.replace(/,/g, '');
+
   const withdrawValue = {
     ...data,
     amount: parseFloat(amountFormat),
     status: 'pending',
   };
+  console.log(withdrawValue, typeof withdrawValue.amount, 'data hoan chinh');
   try {
     const existingUser = await db.Users.findOneAndUpdate(
       { _id: new ObjectId(userID) }, // Sử dụng userID để tìm người dùng cụ thể
@@ -45,7 +52,9 @@ router.post('/withdraw', async (req, res) => {
     res.json({
       message: 'Rút tiền thành công',
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 //thực hiện thanh toán tự động
