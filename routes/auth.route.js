@@ -18,6 +18,37 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
+router.post('/refresh_token', async (req, res) => {
+  const { refreshToken, userID } = req.body;
+
+  const existingUser = await db.Users.findOne({}, { _id: userID });
+
+  const jwtPayload = {
+    id: existingUser.id,
+    username: existingUser.username,
+    fullName: existingUser.fullName,
+    vehicleType: existingUser.vehicleType,
+    vehicle: existingUser.vehicle,
+    licensePlates: existingUser.licensePlates,
+    accountBalance: existingUser.accountBalance,
+  };
+
+  if (!refreshToken) {
+    return res.sendStatus(401);
+  }
+
+  Jwt.verify(refreshToken, process.env.SECRET_KEY, (err, user) => {
+    if (err) {
+      const token = Jwt.sign(jwtPayload, process.env.SECRET_KEY, {
+        expiresIn: '5s',
+      });
+      console.log('token duoc lam moi ', token);
+
+      res.json({ accessToken: token });
+    }
+  });
+});
+
 router.get('/:userID', async (req, res) => {
   const userId = req.params.userID;
   console.log(userId);
@@ -111,7 +142,7 @@ router.post('/login', async (req, res) => {
   };
 
   const token = Jwt.sign(jwtPayload, process.env.SECRET_KEY, {
-    expiresIn: '1000s',
+    expiresIn: '5s',
   });
 
   res.json({
