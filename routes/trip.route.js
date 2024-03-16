@@ -109,6 +109,7 @@ router.patch('/edit', async (req, res) => {
 router.patch('/:id', checkMoneyMiddleware, async (req, res) => {
   const tripId = req.params.id;
   const implementer = req.body;
+
   console.log(implementer);
 
   try {

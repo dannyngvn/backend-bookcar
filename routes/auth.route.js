@@ -34,9 +34,13 @@ router.post('/refresh_token', async (req, res) => {
       }
 
       // Tạo một token mới
-      const accessToken = Jwt.sign({ userId: decoded.userId }, secretKey, {
-        expiresIn: '15m',
-      });
+      const accessToken = Jwt.sign(
+        { userId: decoded.userId },
+        process.env.SECRET_KEY,
+        {
+          expiresIn: '15m',
+        }
+      );
 
       // Trả về token mới
       res.status(200).json({ accessToken: accessToken });

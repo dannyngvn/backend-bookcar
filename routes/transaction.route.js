@@ -12,6 +12,7 @@ const router = express.Router();
 //get all giao dịch của tùng user
 router.get('/:userId', async (req, res) => {
   const { userId } = req.params;
+  console.log(userId);
   const transaction = await db.Transaction.find({ driverID: userId }).toArray();
   const moneyUser = await db.Users.findOne({
     _id: new ObjectId(userId),
