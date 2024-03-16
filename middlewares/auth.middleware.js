@@ -14,6 +14,11 @@ export const authMiddleware = (req, res, next) => {
     const decoded = Jwt.verify(token, process.env.SECRET_KEY);
     next();
   } catch (error) {
+    if (error instanceof Jwt.TokenExpiredError) {
+      return res.status(401).json({
+        message: 'Token is expired',
+      });
+    }
     return res.status(401).json({
       error,
     });

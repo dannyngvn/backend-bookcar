@@ -19,34 +19,31 @@ const upload = multer({ storage: storage });
 const router = express.Router();
 
 router.post('/refresh_token', async (req, res) => {
-  const { refreshToken, userID } = req.body;
-
-  const existingUser = await db.Users.findOne({}, { _id: userID });
-
-  const jwtPayload = {
-    id: existingUser.id,
-    username: existingUser.username,
-    fullName: existingUser.fullName,
-    vehicleType: existingUser.vehicleType,
-    vehicle: existingUser.vehicle,
-    licensePlates: existingUser.licensePlates,
-    accountBalance: existingUser.accountBalance,
-  };
-
+  const { refreshToken } = req.body;
   if (!refreshToken) {
-    return res.sendStatus(401);
+    return res.status(401).json({ message: 'Missing refresh token' });
   }
-
-  Jwt.verify(refreshToken, process.env.SECRET_KEY, (err, user) => {
-    if (err) {
-      const token = Jwt.sign(jwtPayload, process.env.SECRET_KEY, {
-        expiresIn: '5s',
-      });
-      console.log('token duoc lam moi ', token);
-
-      res.json({ accessToken: token });
-    }
+  const useCheckRefreshToken = await db.Users.findOne({
+    refreshToken: refreshToken,
   });
+
+  if (useCheckRefreshToken) {
+    Jwt.verify(refreshToken, process.env.SECRET_KEY, (err, decoded) => {
+      if (err) {
+        return res.status(403).json({ message: 'Invalid refresh token' });
+      }
+
+      // Tạo một token mới
+      const accessToken = Jwt.sign({ userId: decoded.userId }, secretKey, {
+        expiresIn: '15m',
+      });
+
+      // Trả về token mới
+      res.status(200).json({ accessToken: accessToken });
+    });
+  } else {
+    return res.status(403).json({ message: 'token không tồn tại' });
+  }
 });
 
 router.get('/:userID', async (req, res) => {
@@ -106,23 +103,13 @@ router.post(
 );
 router.post('/login', async (req, res) => {
   const { phoneNumber, password } = req.body;
-  //kiểm tra xem người dùng có gửi đầy đủ tên đăng nhập và mật khẩu không ?
-  if (
-    !phoneNumber ||
-    password ===
-      'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
-  ) {
-    return res.status(400).json({
-      message: 'Vui lòng nhập id và mật khẩu',
-    });
-  }
-
-  // lấy dữ liệu người đùng dựa trên tên đăng nhập và mật khẩu đã được gửi lên
 
   const existingUser = await db.Users.findOne({
     phoneNumber: phoneNumber,
     password: password,
   });
+
+  console.log(existingUser);
 
   // kiểm tra xem  người dùng có tồn tại hay không
   if (!existingUser) {
@@ -130,26 +117,27 @@ router.post('/login', async (req, res) => {
       message: 'Sai tên đăng nhập hoặc mật khẩu',
     });
   }
-
   const jwtPayload = {
-    id: existingUser.id,
-    username: existingUser.username,
-    fullName: existingUser.fullName,
-    vehicleType: existingUser.vehicleType,
-    vehicle: existingUser.vehicle,
-    licensePlates: existingUser.licensePlates,
-    accountBalance: existingUser.accountBalance,
+    userId: existingUser._id,
   };
 
-  const token = Jwt.sign(jwtPayload, process.env.SECRET_KEY, {
-    expiresIn: '5s',
+  const accessToken = Jwt.sign(jwtPayload, process.env.SECRET_KEY, {
+    expiresIn: '15m',
   });
 
+  const refreshToken = Jwt.sign(jwtPayload, process.env.SECRET_KEY, {
+    expiresIn: '7d',
+  });
+  console.log(refreshToken);
+
+  await db.Users.updateOne(
+    { _id: existingUser._id },
+    { $set: { refreshToken } }
+  );
+
   res.json({
-    message: `xin chào ${existingUser.fullName}`,
-    id: existingUser._id,
-    user: jwtPayload,
-    accessToken: token,
+    refreshToken: refreshToken,
+    accessToken: accessToken,
   });
 });
 
