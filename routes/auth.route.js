@@ -3,6 +3,7 @@ import Jwt from 'jsonwebtoken';
 import { db } from '../db.js';
 import multer from 'multer';
 import { ObjectId } from 'mongodb';
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'public');
@@ -19,40 +20,28 @@ const upload = multer({ storage: storage });
 const router = express.Router();
 
 router.post('/refresh_token', async (req, res) => {
-  const { refreshToken } = req.body;
-  if (!refreshToken) {
-    return res.status(401).json({ message: 'Missing refresh token' });
-  }
+  const refreshToken = req.headers['x-refresh-token'];
+  const { userId } = req.body;
   const useCheckRefreshToken = await db.Users.findOne({
     refreshToken: refreshToken,
   });
 
   if (useCheckRefreshToken) {
-    Jwt.verify(refreshToken, process.env.SECRET_KEY, (err, decoded) => {
-      if (err) {
-        return res.status(403).json({ message: 'Invalid refresh token' });
-      }
-
-      // Tạo một token mới
-      const accessToken = Jwt.sign(
-        { userId: decoded.userId },
-        process.env.SECRET_KEY,
-        {
-          expiresIn: '15m',
-        }
-      );
-
-      // Trả về token mới
-      res.status(200).json({ accessToken: accessToken });
+    // Tạo một token mới
+    const accessToken = Jwt.sign({ userId: userId }, process.env.SECRET_KEY, {
+      expiresIn: '30s',
     });
+
+    // Trả về token mới
+    res.json({ accessToken: accessToken });
   } else {
-    return res.status(403).json({ message: 'token không tồn tại' });
+    return res.status(402).json({ message: 'token không tồn tại' });
   }
 });
 
 router.get('/:userID', async (req, res) => {
   const userId = req.params.userID;
-  console.log(userId);
+
   const data = await db.Users.findOne({ _id: new ObjectId(userId) });
 
   res.json({
@@ -71,8 +60,6 @@ router.post(
       // Lấy đường dẫn của 2 hình ảnh từ req.files
       const image1Path = req.files['imageDriver'][0].path;
       const image2Path = req.files['imageCar'][0].path;
-      console.log(image1Path);
-      console.log(image2Path);
 
       // Xử lý dữ liệu tài khoản từ req.body (nếu có)
       const phoneNumber = req.body.phoneNumber;
@@ -113,8 +100,6 @@ router.post('/login', async (req, res) => {
     password: password,
   });
 
-  console.log(existingUser);
-
   // kiểm tra xem  người dùng có tồn tại hay không
   if (!existingUser) {
     return res.status(401).json({
@@ -126,13 +111,14 @@ router.post('/login', async (req, res) => {
   };
 
   const accessToken = Jwt.sign(jwtPayload, process.env.SECRET_KEY, {
-    expiresIn: '15m',
+    expiresIn: '30s',
   });
+  console.log('access', accessToken);
 
   const refreshToken = Jwt.sign(jwtPayload, process.env.SECRET_KEY, {
-    expiresIn: '7d',
+    expiresIn: '5d',
   });
-  console.log(refreshToken);
+  console.log('refreshtk', refreshToken);
 
   await db.Users.updateOne(
     { _id: existingUser._id },

@@ -47,11 +47,13 @@ router.get('/mytrip/:userID', async (req, res) => {
 //lay cuốc xe mình đang chạy
 router.get('/myprocessingtrip/:userID', async (req, res) => {
   const userID = req.params.userID;
-  console.log(userID);
-  const data = await db.Trip.find({
-    implementer: userID,
-    status: 'processing',
-  }).toArray();
+  console.log('myprocessingtrip', userID);
+  const data = await db.Trip.find(
+    {
+      status: 'processing',
+    },
+    { 'implementer._id': userID }
+  ).toArray();
 
   res.json({
     data: data,
