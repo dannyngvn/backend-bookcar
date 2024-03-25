@@ -71,6 +71,7 @@ router.post(
       const imageDriver = image1Path;
       const imageCar = image2Path;
       const accountBalance = 0;
+      const pushTokenData = req.body.pushTokenData.data;
 
       // Thực hiện các xử lý khác tại đây (ví dụ: lưu vào cơ sở dữ liệu)
       await db.Users.insertOne({
@@ -83,6 +84,7 @@ router.post(
         imageDriver,
         imageCar,
         accountBalance,
+        pushTokenData,
       });
       // Trả về phản hồi thành công
       res.status(200).json({ message: 'Data received successfully' });
@@ -93,7 +95,9 @@ router.post(
   }
 );
 router.post('/login', async (req, res) => {
-  const { phoneNumber, password } = req.body;
+  const { phoneNumber, password, pushTokenData } = req.body;
+  const pushToken = pushTokenData.data;
+  console.log(pushToken, 'push token');
 
   const existingUser = await db.Users.findOne({
     phoneNumber: phoneNumber,
@@ -106,6 +110,16 @@ router.post('/login', async (req, res) => {
       message: 'Sai tên đăng nhập hoặc mật khẩu',
     });
   }
+
+  if (pushTokenData) {
+    await db.Users.updateOne(
+      {
+        phoneNumber: phoneNumber,
+      },
+      { $set: { pushToken: pushToken } }
+    );
+  }
+
   const jwtPayload = {
     userId: existingUser._id,
   };

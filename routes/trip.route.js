@@ -48,12 +48,10 @@ router.get('/mytrip/:userID', async (req, res) => {
 router.get('/myprocessingtrip/:userID', async (req, res) => {
   const userID = req.params.userID;
   console.log('myprocessingtrip', userID);
-  const data = await db.Trip.find(
-    {
-      status: 'processing',
-    },
-    { 'implementer._id': userID }
-  ).toArray();
+  const data = await db.Trip.find({
+    'implementer._id': new ObjectId(userID),
+    status: 'processing',
+  }).toArray();
 
   res.json({
     data: data,
@@ -73,7 +71,6 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', async (req, res) => {
   const data = req.body;
-
   try {
     await db.Trip.insertOne(data);
 
@@ -278,17 +275,6 @@ router.post('/history', async (req, res) => {
     data: data,
   });
 });
-
-// //Lấy dữ liệu tài xế nhận cuốc
-// router.get('/getimplementer/:implementer', async (req, res) => {
-//   const implementer = req.params.implementer;
-//   console.log(implementer, 'da lay tay xe');
-//   const data = await db.Users.findOne({ _id: new ObjectId(implementer) });
-
-//   res.json({
-//     data: data,
-//   });
-// });
 
 // router.delete('/:id', (req, res) => {
 //   const postId = req.params.id;
