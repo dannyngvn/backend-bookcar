@@ -73,6 +73,12 @@ router.post(
       const accountBalance = 0;
       const pushToken = req.body;
 
+      const existingUser = await db.Users.findOne({
+        $or: [{ phoneNumber: phoneNumber }, { email: email }],
+      });
+      if (existingUser) {
+        return res.status(400).json({ message: 'Số điện thoại hoặc email đã tồn tại trên hệ thống' });
+      }
       // Thực hiện các xử lý khác tại đây (ví dụ: lưu vào cơ sở dữ liệu)
       await db.Users.insertOne({
         phoneNumber,
@@ -122,6 +128,7 @@ router.post('/login', async (req, res) => {
 
   const jwtPayload = {
     userId: existingUser._id,
+    driverName: existingUser.fullName,
   };
 
   const accessToken = Jwt.sign(jwtPayload, process.env.SECRET_KEY, {
