@@ -153,9 +153,10 @@ router.post('/checkout', async (req, res) => {
     const sessionId = await storage.getItem('sessionId');
 
     console.log('sessionId: ', sessionId);
-    if (!sessionId) {
+    if (sessionId === undefined) {
       console.log('lay token khi chua co ssid');
       getToken();
+      return
     }
 
     const response = await axios.post(

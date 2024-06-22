@@ -58,7 +58,7 @@ router.post('/price', async (req, res) => {
   console.log(data);
 
   try {
-    const apiKey = 'AIzaSyC60_Gw6EDpdgXvZojyyl1TaqQTtzL74wU';
+    const apiKey = 'AIzaSyDIfSyryL0vRpxCCDilpmgnYhC98A_E8EQ';
     const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${data.pickUpPoint.latitude},${data.pickUpPoint.longitude}&destination=${data.dropOffPoint.latitude},${data.dropOffPoint.longitude}&mode=driving&key=${apiKey}`;
     // `https://maps.googleapis.com/maps/api/directions/json?origin=21.0400413,105.8493559&destination=21.2176148,105.7929915&mode=driving&key=AIzaSyAfTs6YdTJLhcasLYHleMkwXnKS8CyEOPQ`
 
