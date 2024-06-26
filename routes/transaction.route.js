@@ -10,8 +10,8 @@ storage.init();
 const router = express.Router();
 
 //get all giao dịch của tùng user
-router.get('/:userId', async (req, res) => {
-  const { userId } = req.params;
+router.get('/', async (req, res) => {
+  const userId  = req.userId;
 
   const transaction = await db.Transaction.find({ driverID: userId }).toArray();
   const moneyUser = await db.Users.findOne({
@@ -24,7 +24,7 @@ router.get('/:userId', async (req, res) => {
 router.post('/withdraw', async (req, res) => {
   console.log('rut tien');
   const data = req.body;
-  const userID = data.userID;
+  const userId = req.userId;
   const amount = data.amount;
   console.log(userID);
 
@@ -40,7 +40,7 @@ router.post('/withdraw', async (req, res) => {
   console.log(withdrawValue, typeof withdrawValue.amount, 'data hoan chinh');
   try {
     const existingUser = await db.Users.findOneAndUpdate(
-      { _id: new ObjectId(userID) }, // Sử dụng userID để tìm người dùng cụ thể
+      { _id: new ObjectId(userId) }, // Sử dụng userID để tìm người dùng cụ thể
       {
         $inc: {
           accountBalance: -amount,
@@ -209,7 +209,7 @@ router.post('/checkout', async (req, res) => {
         message: 'Nạp tiền thành công',
       });
       const existingUser = await db.Users.findOneAndUpdate(
-        { _id: new ObjectId(valueDeposit.userID) }, // Sử dụng userID để tìm người dùng cụ thể
+        { _id: new ObjectId(valueDeposit.userId) }, // Sử dụng userID để tìm người dùng cụ thể
         {
           $inc: {
             accountBalance: +valueDeposit.amount,
@@ -219,7 +219,7 @@ router.post('/checkout', async (req, res) => {
       );
 
       const transaction = {
-        driverID: valueDeposit.userID,
+        driverID: valueDeposit.userId,
         timeStamp: formattedDate,
         transactionType: 'Nạp tiền',
         amount: `${'+'} ${valueDeposit.amount}`,

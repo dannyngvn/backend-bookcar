@@ -22,7 +22,7 @@ if (month < 10) {
 // Hiển thị ngày theo định dạng 'dd/mm/yyyy'
 let formattedDate = day + '/' + month + '/' + year;
 
-// lấy toàn bộ cuốc xe ( đã hoàn thành )
+// lấy toàn bộ cuốc xe dang pending( đã hoàn thành )
 
 router.get('/', async (req, res) => {
   const data = await db.Trip.find({}).toArray();
@@ -32,12 +32,12 @@ router.get('/', async (req, res) => {
   });
 });
 
-//lây cuốc xe đang chạy và mình bắn
-router.get('/mytrip/:userID', async (req, res) => {
-  const userID = req.params.userID;
-  console.log(userID);
+//lây cuốc xe mình bắn
+router.get('/mytrip', async (req, res) => {
+  const userId = req.userId;
+
   const data = await db.Trip.find({
-    originator: userID,
+    originator: userId,
   }).toArray();
   res.json({
     data: data,
@@ -45,11 +45,11 @@ router.get('/mytrip/:userID', async (req, res) => {
 });
 
 //lay cuốc xe mình đang chạy
-router.get('/myprocessingtrip/:userID', async (req, res) => {
-  const userID = req.params.userID;
-  console.log('myprocessingtrip', userID);
+router.get('/myprocessingtrip', async (req, res) => {
+  const userId = req.userId;
+ 
   const data = await db.Trip.find({
-    'implementer._id': new ObjectId(userID),
+    'implementer._id': new ObjectId(userId),
     status: 'processing',
   }).toArray();
 
@@ -84,10 +84,10 @@ router.post('/', async (req, res) => {
 router.patch('/edit', async (req, res) => {
   const data = req.body;
   const id = data._id;
-  console.log('edit trip');
+ 
 
   try {
-    console.log(data);
+    
     delete data._id;
     await db.Trip.findOneAndUpdate(
       { _id: new ObjectId(id) }, // Sử dụng _id để tìm chuyến đi cụ thể
@@ -107,14 +107,14 @@ router.patch('/edit', async (req, res) => {
 
 router.patch('/:id', checkMoneyMiddleware, async (req, res) => {
   const tripId = req.params.id;
-  const implementer = req.body;
+  const implementer = req.userId;
 
   console.log(implementer);
 
   try {
     const existingTrip = await db.Trip.findOne({ _id: new ObjectId(tripId) });
     const existingUserImplementer = await db.Users.findOne({
-      _id: new ObjectId(implementer.userID),
+      _id: new ObjectId(implementer),
     });
 
     if (existingTrip.implementer) {
@@ -130,7 +130,7 @@ router.patch('/:id', checkMoneyMiddleware, async (req, res) => {
       );
 
       const existingUserEditBalance = await db.Users.findOneAndUpdate(
-        { _id: new ObjectId(implementer.userID) }, // Sử dụng userID để tìm người dùng cụ thể
+        { _id: new ObjectId(implementer) }, // Sử dụng userID để tìm người dùng cụ thể
         {
           $inc: {
             accountBalance: -existingTrip.price,
@@ -141,7 +141,7 @@ router.patch('/:id', checkMoneyMiddleware, async (req, res) => {
 
       try {
         const transaction = {
-          driverID: implementer.userID,
+          driverID: implementer,
           tripID: existingTrip._id,
           timeStamp: formattedDate,
           transactionType: 'Nhận chuyến',
@@ -166,7 +166,7 @@ router.patch('/:id', checkMoneyMiddleware, async (req, res) => {
 
 router.patch('/cancel/:id', async (req, res) => {
   const tripId = req.params.id;
-  const implementer = req.body.implementer;
+  const implementer = req.userId;
   console.log('day la id nguoi dung ', implementer);
 
   try {
