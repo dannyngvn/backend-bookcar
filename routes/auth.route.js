@@ -134,12 +134,12 @@ router.post('/login', async (req, res) => {
   const accessToken = Jwt.sign(jwtPayload, process.env.SECRET_KEY, {
     expiresIn: '30s',
   });
-  console.log('access', accessToken);
+
 
   const refreshToken = Jwt.sign(jwtPayload, process.env.SECRET_KEY, {
     expiresIn: '5d',
   });
-  console.log('refreshtk', refreshToken);
+  
 
   await db.Users.updateOne(
     { _id: existingUser._id },

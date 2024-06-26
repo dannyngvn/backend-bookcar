@@ -37,6 +37,7 @@ export const authMiddleware = async (req, res, next) => {
     // Giải mã access token để lấy thông tin người dùng
     const decodedAccessToken = Jwt.verify(accessToken, process.env.SECRET_KEY);
     req.user = decodedAccessToken.userID;
+    console.log("giai ma actk", decodedAccessToken)
 
     // Nếu mọi thứ hợp lệ, tiếp tục xử lý
     next();
