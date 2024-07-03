@@ -17,7 +17,7 @@ export const authMiddleware = async (req, res, next) => {
 const useCheckRefreshToken = await db.Users.findOne({
   "refreshToken": refreshToken,
 });
-console.log(useCheckRefreshToken)
+
 
 if(useCheckRefreshToken.refreshToken !== refreshToken) {
   console.log("first1")

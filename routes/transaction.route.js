@@ -8,10 +8,10 @@ import storage from 'node-persist';
 storage.init();
 
 const router = express.Router();
-
 //get all giao dịch của tùng user
 router.get('/', async (req, res) => {
   const userId  = req.userId;
+  console.log(userId)
 
   const transaction = await db.Transaction.find({ driverID: userId }).toArray();
   const moneyUser = await db.Users.findOne({

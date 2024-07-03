@@ -109,7 +109,7 @@ router.patch('/:id', checkMoneyMiddleware, async (req, res) => {
   const tripId = req.params.id;
   const implementer = req.userId;
 
-  console.log(implementer);
+
 
   try {
     const existingTrip = await db.Trip.findOne({ _id: new ObjectId(tripId) });
@@ -167,7 +167,7 @@ router.patch('/:id', checkMoneyMiddleware, async (req, res) => {
 router.patch('/cancel/:id', async (req, res) => {
   const tripId = req.params.id;
   const implementer = req.userId;
-  console.log('day la id nguoi dung ', implementer);
+  
 
   try {
     const existingTrip = await db.Trip.findOneAndUpdate(

@@ -21,7 +21,13 @@ const router = express.Router();
 
 router.post('/refresh_token', async (req, res) => {
   const refreshToken = req.headers['x-refresh-token'];
-  const { userId } = req.body;
+  const decodedRefreshToken = Jwt.verify(
+    refreshToken,
+    process.env.SECRET_KEY
+  );
+  const userId = decodedRefreshToken.userId;
+  
+  console.log("useid rf token" , userId)
   const useCheckRefreshToken = await db.Users.findOne({
     refreshToken: refreshToken,
   });
@@ -31,6 +37,7 @@ router.post('/refresh_token', async (req, res) => {
     const accessToken = Jwt.sign({ userId: userId }, process.env.SECRET_KEY, {
       expiresIn: '30s',
     });
+    console.log("token duoc lam moi", accessToken)
 
     // Trả về token mới
     res.json({ accessToken: accessToken });
