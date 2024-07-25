@@ -14,9 +14,11 @@ router.get('/', async (req, res) => {
   console.log(userId)
 
   const transaction = await db.Transaction.find({ driverID: userId }).toArray();
+  console.log(transaction)
   const moneyUser = await db.Users.findOne({
     _id: new ObjectId(userId),
   });
+
 
   res.json({ transaction, moneyUser });
 });
@@ -26,24 +28,27 @@ router.post('/withdraw', async (req, res) => {
   const data = req.body;
   const userId = req.userId;
   const amount = data.amount;
-  console.log(userID);
+  
 
-  console.log(data, ' khi nhan len');
+
 
   const amountFormat = amount.replace(/,/g, '');
-
+  
+// console.log("ddaay la amountFormat",amountFormat, typeof(amountFormat))
   const withdrawValue = {
     ...data,
     amount: parseFloat(amountFormat),
     status: 'pending',
+    driverID: userId
   };
-  console.log(withdrawValue, typeof withdrawValue.amount, 'data hoan chinh');
+  console.log(withdrawValue, typeof(withdrawValue.amount))
+  // console.log(withdrawValue, typeof withdrawValue.amount, 'data hoan chinh');
   try {
     const existingUser = await db.Users.findOneAndUpdate(
       { _id: new ObjectId(userId) }, // Sử dụng userID để tìm người dùng cụ thể
       {
         $inc: {
-          accountBalance: -amount,
+          accountBalance: -amountFormat,
         },
       }, // Giảm số dư tài khoản
       { new: true } // Trả về document sau khi cập nhật

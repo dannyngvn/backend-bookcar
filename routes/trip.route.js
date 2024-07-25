@@ -166,7 +166,7 @@ router.patch('/:id', checkMoneyMiddleware, async (req, res) => {
 
 router.patch('/cancel/:id', async (req, res) => {
   const tripId = req.params.id;
-  const implementer = req.userId;
+  const implementer = req.body;
   
 
   try {

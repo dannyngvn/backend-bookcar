@@ -18,6 +18,6 @@ router.use('/transaction', authMiddleware, transactionRouter);
 router.use('/notifications', notificationsRouter);
 router.use('/auth', authRouter);
 router.use('/client', clientRouter);
-router.use('/admin', adminRouter);
+router.use('/admin',authMiddleware, adminRouter);
 
 export default router;
