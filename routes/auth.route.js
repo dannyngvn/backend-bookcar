@@ -3,6 +3,7 @@ import Jwt from 'jsonwebtoken';
 import { db } from '../db.js';
 import multer from 'multer';
 import { ObjectId } from 'mongodb';
+import { authMiddleware } from '../middlewares/auth.middleware.js';
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -46,10 +47,12 @@ router.post('/refresh_token', async (req, res) => {
   }
 });
 
-router.get('/:userID', async (req, res) => {
-  const userId = req.params.userID;
+router.get('/:userId', async (req, res) => {
+  const userId = req.params.userId;
+  console.log(userId,"Abcc")
 
   const data = await db.Users.findOne({ _id: new ObjectId(userId) });
+  console.log(data)
 
   res.json({
     data: data,
@@ -158,5 +161,41 @@ router.post('/login', async (req, res) => {
     accessToken: accessToken,
   });
 });
+
+router.post('/changepassword',authMiddleware, async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    const userId = req.userId;
+    
+
+    // Tìm người dùng bằng userId
+    const existingUser = await db.Users.findOne({ _id: new ObjectId(userId) });
+
+    if (!existingUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Kiểm tra mật khẩu cũ (đã được mã hóa từ phía client)
+    if (oldPassword !== existingUser.password) {
+      return res.status(400).json({ message: 'Mật khẩu cũ đã nhập sai' });
+    }
+
+    // Cập nhật mật khẩu mới (đã được mã hóa từ phía client)
+    const result = await db.Users.updateOne(
+      { _id: new ObjectId(userId) },
+      { $set: { password: newPassword } }
+    );
+
+    if (result.modifiedCount === 0) {
+      return res.status(500).json({ message: 'Failed to change password' });
+    }
+
+    res.status(200).json({ message: 'Thay đổi mât khẩu thành công !' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 
 export default router;

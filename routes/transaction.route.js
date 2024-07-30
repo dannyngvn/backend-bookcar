@@ -26,7 +26,7 @@ router.get('/', async (req, res) => {
 router.post('/withdraw', async (req, res) => {
   console.log('rut tien');
   const data = req.body;
-  const userId = req.userId;
+  const userId = req.params.userId;
   const amount = data.amount;
   
 
@@ -66,6 +66,8 @@ router.post('/withdraw', async (req, res) => {
 //thực hiện thanh toán tự động
 router.post('/checkout', async (req, res) => {
   const { valueDeposit } = req.body;
+  const userId = req.userId;
+  console.log(userId, " nap tien")
 
   let today = new Date();
 
@@ -210,11 +212,9 @@ router.post('/checkout', async (req, res) => {
     console.log('kiem tra da co giao dich chua', checkMoney);
 
     if (checkMoney) {
-      res.json({
-        message: 'Nạp tiền thành công',
-      });
+     
       const existingUser = await db.Users.findOneAndUpdate(
-        { _id: new ObjectId(valueDeposit.userId) }, // Sử dụng userID để tìm người dùng cụ thể
+        { _id: new ObjectId(userId) }, // Sử dụng userID để tìm người dùng cụ thể
         {
           $inc: {
             accountBalance: +valueDeposit.amount,
@@ -224,7 +224,7 @@ router.post('/checkout', async (req, res) => {
       );
 
       const transaction = {
-        driverID: valueDeposit.userId,
+        driverID: userId,
         timeStamp: formattedDate,
         transactionType: 'Nạp tiền',
         amount: `${'+'} ${valueDeposit.amount}`,
@@ -233,6 +233,9 @@ router.post('/checkout', async (req, res) => {
       await db.Transaction.insertOne(transaction);
 
       clearInterval(interval);
+      res.json({
+        message: 'Nạp tiền thành công',
+      });
     }
   };
 
