@@ -6,8 +6,8 @@ import clientRouter from './client.route.js';
 import logAPI from '../middlewares/logAPI.js';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
 import notificationsRouter from './notifications.route.js';
-
 import adminRouter from './admin.route.js';
+
 
 const router = express.Router();
 
