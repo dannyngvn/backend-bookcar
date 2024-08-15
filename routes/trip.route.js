@@ -210,7 +210,8 @@ router.patch('/:id', checkMoneyMiddleware, async (req, res) => {
 
 router.patch('/cancel/:id', async (req, res) => {
   const tripId = req.params.id;
-  const implementer = req.body;
+  const {implementer} = req.body;
+  console.log("nguoi nhan chuyen ",implementer)
   
 
   try {
@@ -261,46 +262,62 @@ router.patch('/cancel/:id', async (req, res) => {
 
 router.patch('/complete/:id', async (req, res) => {
   const tripId = req.params.id;
-  const originator = req.body;
-  // console.log(originator.originator);
+  const { originator } = req.body;
+  console.log(originator,"nguoi tao chuyen");
 
   try {
-    const existingTrip = await db.Trip.findOneAndUpdate(
-      { _id: new ObjectId(tripId) }, // Sử dụng _id để tìm chuyến đi cụ thể
-      { $set: { status: 'complete' } },
-      { new: true } // Trả về document sau khi cập nhật
-    );
+    const trip = await db.Trip.findOne({ _id: new ObjectId(tripId) });
 
-    const existingUser = await db.Users.findOneAndUpdate(
-      { _id: new ObjectId(originator.originator) }, // Sử dụng userID để tìm người dùng cụ thể
-      {
-        $inc: {
-          accountBalance: +existingTrip.price - 5000,
-        },
-      }, // Giảm số dư tài khoản
-      { new: true } // Trả về document sau khi cập nhật
-    );
-    const transaction = {
-      driverID: originator.originator,
-      tripID: existingTrip._id,
-      timeStamp: formattedDate,
-      transactionType: 'Tiền từ cuốc bắn',
-      amount: `${'+'} ${existingTrip.price}`,
-      pickUpAddress: existingTrip.pickUpAddress,
-      dropOffAddress: existingTrip.dropOffAddress,
-    };
+    if (trip) {
+      if (trip.status !== 'complete') {
+        const updatedTrip = await db.Trip.findOneAndUpdate(
+          { _id: new ObjectId(tripId) },
+          { $set: { status: 'complete' } },
+          { new: true }
+        );
 
-    await db.Transaction.insertOne(transaction);
+        const existingUser = await db.Users.findOneAndUpdate(
+          { _id: new ObjectId(originator) }, // Sử dụng userID để tìm người dùng cụ thể
+          {
+            $inc: {
+              accountBalance: updatedTrip.price - 5000, // Sử dụng updatedTrip thay vì existingTrip
+            },
+          }, // Giảm số dư tài khoản
+          { new: true } // Trả về document sau khi cập nhật
+        );
 
-    res.json({
-      message: 'Đã hoàn thành',
-      exitingTrip: existingTrip,
-    });
+        const transaction = {
+          driverID: originator,
+          tripID: updatedTrip._id, // Sử dụng updatedTrip thay vì existingTrip
+          timeStamp: formattedDate, // Đảm bảo định dạng thời gian đúng
+          transactionType: 'Tiền từ cuốc bắn',
+          amount: `+ ${updatedTrip.price}`, // Sử dụng updatedTrip thay vì existingTrip
+          pickUpAddress: updatedTrip.pickUpAddress, // Sử dụng updatedTrip thay vì existingTrip
+          dropOffAddress: updatedTrip.dropOffAddress, // Sử dụng updatedTrip thay vì existingTrip
+        };
+
+        await db.Transaction.insertOne(transaction);
+
+        res.json({
+          message: 'Đã hoàn thành',
+          exitingTrip: updatedTrip, // Sử dụng updatedTrip thay vì existingTrip
+        });
+      } else {
+        res.json({
+          message: 'Trip status is already complete. No update necessary.',
+        });
+      }
+    } else {
+      res.status(404).json({
+        message: 'Trip not found.',
+      });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
     console.log(error);
   }
 });
+
 
 // lấy lịch sử cá nhân
 router.post('/history', async (req, res) => {

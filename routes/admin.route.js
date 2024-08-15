@@ -6,7 +6,7 @@ const router = express.Router();
 
 // lấy toàn bộ tài xế
 
-router.get('/driver', async (req, res) => {
+router.get('/listdriver', async (req, res) => {
   try {
     const data = await db.Users.find({ status: 'activated' }).toArray();
 
