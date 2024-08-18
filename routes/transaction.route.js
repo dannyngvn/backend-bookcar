@@ -2,7 +2,7 @@ import express from 'express';
 import { db } from '../db.js';
 import { ObjectId } from 'mongodb';
 import axios from 'axios';
-
+import 'dotenv/config';
 import storage from 'node-persist';
 
 storage.init();
@@ -71,141 +71,142 @@ router.post('/checkout', async (req, res) => {
 
   let today = new Date();
 
-  // Lấy thông tin ngày, tháng và năm
-  let day = today.getDate();
-  let month = today.getMonth() + 1; // Tháng bắt đầu từ 0 nên cần cộng thêm 1
-  let year = today.getFullYear();
+// Lấy thông tin ngày, tháng và năm
+let day = today.getDate();
+let month = today.getMonth() + 1; // Tháng bắt đầu từ 0 nên cần cộng thêm 1
+let year = today.getFullYear();
 
-  // Định dạng lại để có dạng 'dd/mm/yyyy'
-  if (day < 10) {
-    day = '0' + day; // Thêm số 0 phía trước nếu ngày chỉ có một chữ số
-  }
-  if (month < 10) {
-    month = '0' + month; // Thêm số 0 phía trước nếu tháng chỉ có một chữ số
-  }
+// Định dạng lại để có dạng 'dd/mm/yyyy'
+if (day < 10) {
+  day = '0' + day; // Thêm số 0 phía trước nếu ngày chỉ có một chữ số
+}
+if (month < 10) {
+  month = '0' + month; // Thêm số 0 phía trước nếu tháng chỉ có một chữ số
+}
 
-  // Hiển thị ngày theo định dạng 'dd/mm/yyyy'
-  let formattedDate = day + '/' + month + '/' + year;
-  let formattYesterday = day - 1 + '/' + month + '/' + year;
-  const getCapcha = async () => {
-    const response = await axios.post(
-      'https://online.mbbank.com.vn/api/retail-web-internetbankingms/getCaptchaImage',
-      {
-        deviceIdCommon: 'b2foes6s-mbib-0000-0000-2023120412444158',
-        refNo: '2023120420144551',
-        sessionId: '',
-      },
-      {
-        headers: {
-          Connection: 'keep-alive',
-          Host: 'online.mbbank.com.vn',
-          Origin: 'https://online.mbbank.com.vn',
-          Referer: 'https://online.mbbank.com.vn/pl/login?returnUrl=%2F',
-          'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-          Authorization:
-            'Basic RU1CUkVUQUlMV0VCOlNEMjM0ZGZnMzQlI0BGR0AzNHNmc2RmNDU4NDNm',
-        },
-      }
-    );
-    const capcha = response.data.imageString;
+// Hiển thị ngày theo định dạng 'dd/mm/yyyy'
+let formattedDate = day + '/' + month + '/' + year;
 
-    return capcha;
-  };
+// Chuyển đổi fromDate và toDate với việc đảm bảo month luôn có 2 chữ số
+let fromMonth = today.getMonth() - 2; // Tính từ 3 tháng trước
+if (fromMonth < 10) {
+  fromMonth = '0' + fromMonth;
+}
 
-  const antiCapcha = async () => {
-    const response = await axios.post('https://anticaptcha.top/api/captcha', {
-      apikey: '98c74c1d4837f7148672f4765ca060b5',
-      img: `data:image/png;base64,${await getCapcha()}`,
-      type: 18,
-    });
+let fromDate = `${year}${fromMonth}${day}`;
+let toDate = `${year}${month}${day}`;
 
-    const decodeCapcha = response.data.captcha;
 
-    return decodeCapcha;
-  };
+  
+
 
   const getToken = async () => {
     const response = await axios.post(
-      'https://online.mbbank.com.vn/api/retail_web/internetbanking/doLogin',
+      'https://ebank.tpb.vn/gateway/api/auth/login/v3',
       {
-        captcha: await antiCapcha(),
-        deviceIdCommon: 'b2foes6s-mbib-0000-0000-2023120412444158',
-        password: '3702935ef883958108f553971fe3c167',
-        refNo: '63c8f1254c577525f74d124a30a15b4c-2023120621385740',
-
-        userId: '0912222821',
+        deviceId: 'oXV18sNWk2tvcshevRqN67IlUeDxSBAW7pB7vyRnOwYFj',
+        password: process.env.PASSWORDTPB,
+        username: '04582772',
+        transactionId: ""
       },
       {
         headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          Refno: '0912222821-2024011622123959',
-          Deviceid: '0l224vhw-mbib-0000-0000-2024011621001562',
-          Connection: 'keep-alive',
-          Host: 'online.mbbank.com.vn',
-          Origin: 'https://online.mbbank.com.vn',
-          Referer:
-            'https://online.mbbank.com.vn/information-account/source-account',
-          'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-          Authorization:
-            'Basic RU1CUkVUQUlMV0VCOlNEMjM0ZGZnMzQlI0BGR0AzNHNmc2RmNDU4NDNm',
+          APP_VERSION: "2024.07.12",
+          Accept: "application/json, text/plain, */*",
+          "Accept-Language": "vi",
+          Authorization: "Bearer",
+          Connection: "keep-alive",
+          "Content-Type": "application/json",
+          DEVICE_ID: "oXV18sNWk2tvcshevRqN67IlUeDxSBAW7pB7vyRnOwYFj",
+          DEVICE_NAME: "Chrome",
+          Origin: "https://ebank.tpb.vn",
+          PLATFORM_NAME: "WEB",
+          PLATFORM_VERSION: "127",
+          Referer: "https://ebank.tpb.vn/retail/vX/",
+          SOURCE_APP: "HYDRO",
+          "Sec-Fetch-Dest": "empty",
+          "Sec-Fetch-Mode": "cors",
+          "Sec-Fetch-Site": "same-origin",
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
+          "sec-ch-ua":
+            '"Not)A;Brand";v="99", "Google Chrome";v="127", "Chromium";v="127"',
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": '"macOS"',
         },
       }
     );
-    await storage.setItem('sessionId', response.data.sessionId);
+    const token = response.data.access_token
+    console.log("token", token)
+    await storage.setItem('sessionId', token); 
+    const tpbToken = await storage.getItem('sessionId');
+    console.log("token lay trong storage", tpbToken)   
   };
+  getToken()
+
 
   const getHistory = async () => {
-    const sessionId = await storage.getItem('sessionId');
-
-    console.log('sessionId: ', sessionId);
-    if (sessionId === undefined) {
+    const tpbToken = await storage.getItem('sessionId');
+    
+    // console.log('sessionId: ', sessionId);
+    if (tpbToken === undefined) {
       console.log('lay token khi chua co ssid');
       getToken();
       return
     }
 
     const response = await axios.post(
-      `https://online.mbbank.com.vn/api/retail-transactionms/transactionms/get-account-transaction-history`,
+      `https://ebank.tpb.vn/gateway/api/smart-search-presentation-service/v2/account-transactions/find`,
       {
-        accountNo: '0912222821',
-        fromDate: formattYesterday,
-        toDate: formattedDate,
-        sessionId: sessionId,
-        refNo: '0912222821-2024011622503914',
-        deviceIdCommon: 'b2foes6s-mbib-0000-0000-2023120412444158',
+        pageNumber: 1,
+        pageSize: 400,
+        accountNo: "04582772201",
+        currency: "VND",
+        maxAcentrysrno: "",
+        fromDate: fromDate,
+        toDate: toDate,
+        keyword: "",
       },
       {
         headers: {
-          Connection: 'keep-alive',
-          Host: 'online.mbbank.com.vn',
-          Origin: 'https://online.mbbank.com.vn',
-          Referer:
-            'https://online.mbbank.com.vn/information-account/source-account',
-          'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
-          Authorization:
-            'Basic RU1CUkVUQUlMV0VCOlNEMjM0ZGZnMzQlI0BGR0AzNHNmc2RmNDU4NDNm',
-          'Content-Type': 'application/json; charset=utf-8',
-          Refno: '0912222821-2024011622503914',
-          Deviceid: '0l224vhw-mbib-0000-0000-2024011621001562',
+          APP_VERSION: "2024.07.12",
+          Accept: "application/json, text/plain, */*",
+          "Accept-Language": "vi,en-US;q=0.9,en;q=0.8",
+          Authorization: `Bearer ${tpbToken}`,
+          Connection: "keep-alive",
+          "Content-Type": "application/json",
+          DEVICE_ID: "oXV18sNWk2tvcshevRqN67IlUeDxSBAW7pB7vyRnOwYFj",
+          DEVICE_NAME: "Chrome",
+          Origin: "https://ebank.tpb.vn",
+          PLATFORM_NAME: "WEB",
+          PLATFORM_VERSION: "127",
+          SOURCE_APP: "HYDRO",
+          "Sec-Fetch-Dest": "empty",
+          "Sec-Fetch-Mode": "cors",
+          "Sec-Fetch-Site": "same-origin",
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
+          "sec-ch-ua":
+            '"Not)A;Brand";v="99", "Google Chrome";v="127", "Chromium";v="127"',
+          "sec-ch-ua-mobile": "?0",
+          "sec-ch-ua-platform": '"macOS"',
         },
       }
     );
-    const dataHistory = response.data.transactionHistoryList;
-    const checkSSID = response.data.result.ok;
-    console.log('kiem tra ssid con hieu luc khong ? ', checkSSID);
-    console.log('dạnh sach mang tra ve', dataHistory);
+    
+   
 
-    if (!checkSSID) {
+    const checkSSID = response.data.error;
+    
+    if (checkSSID=== "Unauthorized") {
       console.log('SSID het hieu luc lay lai ssid');
       getToken();
       return;
     }
-
+    const dataHistory = response.data.transactionInfos;
+    console.log(dataHistory)
     let checkMoney = dataHistory.some(item => {
-      return item.addDescription.toLowerCase().includes(valueDeposit.infor);
+      return item.description.toLowerCase().includes(valueDeposit.infor);
     });
 
     console.log('ma ck: ', valueDeposit.infor);
