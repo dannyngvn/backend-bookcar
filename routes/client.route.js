@@ -144,25 +144,9 @@ router.post('/price', async (req, res) => {
       });
     }
 
-    //4 hatchback chỗ 2 chiều và  không VAT
-    if (data.vehicleType === '4 chỗ hatchback' && data.lap && !data.vat) {
-      const price = car4hat + car4hat / 2;
-      return res.json({
-        message: 'đặt xe thành công 2 chieu ko kem VAT',
-        price,
-      });
-    }
+    
 
-    //4 hatchback chỗ 1 chiều và   VAT
-    if (data.vehicleType === '4 chỗ hatchback' && !data.lap && data.vat) {
-      const price = car4hat + car4hat * 0.1;
-      return res.json({
-        message: 'đặt xe thành công 1 chieu kem VAT',
-        price,
-      });
-    }
-    //4 hatchback chỗ 1 chiều và  không VAT
-   
+  
 
     //4 chỗ 2 chiều và VAT
     if (data.vehicleType === '4 chỗ sedan' && data.lap && data.vat) {
