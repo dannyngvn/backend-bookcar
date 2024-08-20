@@ -264,7 +264,7 @@ router.patch('/cancel/:id', async (req, res) => {
 router.patch('/complete/:id', async (req, res) => {
   const tripId = req.params.id;
   const { originator } = req.body;
-  console.log(originator,"nguoi tao chuyen");
+  
 
   try {
     const trip = await db.Trip.findOne({ _id: new ObjectId(tripId) });
