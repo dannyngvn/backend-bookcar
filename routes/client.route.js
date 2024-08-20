@@ -120,7 +120,7 @@ router.post('/price', async (req, res) => {
     }
 
     console.log(`Khoảng cách giữa hai điểm là 2: ${distanceValue}`);
-    const car4hat = distanceValue * 8000;
+   
     const car4 = distanceValue * 9000;
     const car7 = distanceValue * 11000;
     const car9 = distanceValue * 12000;
@@ -162,13 +162,7 @@ router.post('/price', async (req, res) => {
       });
     }
     //4 hatchback chỗ 1 chiều và  không VAT
-    if (data.vehicleType === '4 chỗ hatchback' && !data.lap && !data.vat) {
-      const price = car4hat;
-      return res.json({
-        message: 'đặt xe thành công 1 chieu ko kem VAT',
-        price,
-      });
-    }
+   
 
     //4 chỗ 2 chiều và VAT
     if (data.vehicleType === '4 chỗ sedan' && data.lap && data.vat) {
