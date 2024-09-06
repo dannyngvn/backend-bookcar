@@ -50,6 +50,7 @@ if(useCheckRefreshToken.refreshToken !== refreshToken) {
     // Giải mã access token để lấy thông tin người dùng
     const decodedAccessToken = Jwt.verify(accessToken, process.env.SECRET_KEY);
     req.userId = decodedAccessToken.userId;
+    req.role = decodedAccessToken.role
     
 
     // Nếu mọi thứ hợp lệ, tiếp tục xử lý

@@ -147,8 +147,7 @@ let toDate = `${year}${month}${day}`;
 
   const getHistory = async () => {
     const tpbToken = await storage.getItem('sessionId');
-    
-    // console.log('sessionId: ', sessionId);
+    const existingTransaction  = db.Transaction.findOne()
     if (tpbToken === undefined) {
       console.log('lay token khi chua co ssid');
       getToken();

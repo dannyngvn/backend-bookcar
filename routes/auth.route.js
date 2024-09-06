@@ -4,7 +4,7 @@ import { db } from '../db.js';
 import multer from 'multer';
 import { ObjectId } from 'mongodb';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
-
+import  checkRole  from '../middlewares/checkrole.middleware.js';
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'public');
@@ -160,6 +160,69 @@ router.post('/login', async (req, res) => {
     refreshToken: refreshToken,
     accessToken: accessToken,
   });
+});
+
+//login admin 
+router.post('/login-admin', async (req, res) => {
+  const { phoneNumber, password, pushToken } = req.body;
+
+  console.log(pushToken, 'push token');
+
+  const existingUser = await db.Users.findOne({
+    phoneNumber: phoneNumber,
+    password: password,
+    // role: "superadmin"
+  });
+
+  // kiểm tra xem  người dùng có tồn tại hay không
+  if (!existingUser) {
+    return res.status(401).json({
+      message: 'Sai tên đăng nhập hoặc mật khẩu',
+    });
+  }
+
+  if (pushToken) {
+    await db.Users.updateOne(
+      {
+        phoneNumber: phoneNumber,
+      },
+      { $set: { pushToken: pushToken } }
+    );
+  }
+
+  const jwtPayload = {
+    userId: existingUser._id,
+    driverName: existingUser.fullName,
+    role: existingUser.role
+  };
+
+  const accessToken = Jwt.sign(jwtPayload, process.env.SECRET_KEY, {
+    expiresIn: '30s',
+  });
+
+
+  const refreshToken = Jwt.sign(jwtPayload, process.env.SECRET_KEY, {
+    expiresIn: '5d',
+  });
+  
+
+  await db.Users.updateOne(
+    { _id: existingUser._id },
+    { $set: { refreshToken } }
+  );
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: false, // Bảo mật cookie khỏi JavaScript
+    secure: false,  // Không cần dùng secure vì đang chạy trên localhost (không có HTTPS)
+    maxAge: 5 * 24 * 60 * 60 * 1000, // Cookie tồn tại trong 5 ngày
+  });
+
+  
+  res.json({
+    
+    accessToken: accessToken,
+    
+  });
+  
 });
 
 router.post('/changepassword',authMiddleware, async (req, res) => {

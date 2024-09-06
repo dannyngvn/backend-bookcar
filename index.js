@@ -6,9 +6,10 @@ import cors from "cors"
 
 const app = express();
 app.use(cors({
-    origin: '*', // hoặc dùng '*' để cho phép tất cả các nguồn gốc
+    origin: 'http://localhost:3000', // hoặc dùng '*' để cho phép tất cả các nguồn gốc
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], // Các phương thức HTTP được phép
-    allowedHeaders: ['Content-Type', 'Authorization'] // Các tiêu đề được phép
+    allowedHeaders: ['Content-Type', 'Authorization'], // Các tiêu đề được phép
+    credentials: true // Bật gửi cookie
 }));
 
 app.use(express.json());
