@@ -8,7 +8,7 @@ export const authMiddleware = async (req, res, next) => {
 
   // Kiểm tra xem cả access token và refresh token có tồn tại không
   if (!accessToken || !refreshToken) {
-    console.log('khong co token nao ca');
+    
     return res.status(400).json({
       message: 'Access Token or Refresh Token is not provided',
     });
@@ -17,12 +17,10 @@ export const authMiddleware = async (req, res, next) => {
 const useCheckRefreshToken = await db.Users.findOne({
   "refreshToken": refreshToken,
 });
-console.log(useCheckRefreshToken,"nguoi dung co rftoke")
-console.log(refreshToken,"rftoken nguoi dung")
 
 
 if(useCheckRefreshToken.refreshToken !== refreshToken) {
-  console.log("first1")
+
   return res.status(400).json({
     message: 'đã đăng nhập tại nơi khac',
   });
@@ -51,6 +49,8 @@ if(useCheckRefreshToken.refreshToken !== refreshToken) {
     const decodedAccessToken = Jwt.verify(accessToken, process.env.SECRET_KEY);
     req.userId = decodedAccessToken.userId;
     req.role = decodedAccessToken.role
+   
+
     
 
     // Nếu mọi thứ hợp lệ, tiếp tục xử lý

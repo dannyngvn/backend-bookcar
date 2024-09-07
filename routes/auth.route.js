@@ -4,7 +4,7 @@ import { db } from '../db.js';
 import multer from 'multer';
 import { ObjectId } from 'mongodb';
 import { authMiddleware } from '../middlewares/auth.middleware.js';
-import  checkRole  from '../middlewares/checkrole.middleware.js';
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, 'public');
@@ -27,18 +27,19 @@ router.post('/refresh_token', async (req, res) => {
     process.env.SECRET_KEY
   );
   const userId = decodedRefreshToken.userId;
+  const role = decodedRefreshToken.role
   
-  console.log("useid rf token" , userId)
+ 
   const useCheckRefreshToken = await db.Users.findOne({
     refreshToken: refreshToken,
   });
 
   if (useCheckRefreshToken) {
     // Tạo một token mới
-    const accessToken = Jwt.sign({ userId: userId }, process.env.SECRET_KEY, {
+    const accessToken = Jwt.sign({ userId: userId, role: role }, process.env.SECRET_KEY, {
       expiresIn: '30s',
     });
-    console.log("token duoc lam moi", accessToken)
+   
 
     // Trả về token mới
     res.json({ accessToken: accessToken });
@@ -49,10 +50,10 @@ router.post('/refresh_token', async (req, res) => {
 
 router.get('/:userId', async (req, res) => {
   const userId = req.params.userId;
-  console.log(userId,"Abcc")
+  
 
   const data = await db.Users.findOne({ _id: new ObjectId(userId) });
-  console.log(data)
+
 
   res.json({
     data: data,
@@ -113,7 +114,7 @@ router.post(
 router.post('/login', async (req, res) => {
   const { phoneNumber, password, pushToken } = req.body;
 
-  console.log(pushToken, 'push token');
+
 
   const existingUser = await db.Users.findOne({
     phoneNumber: phoneNumber,
@@ -166,7 +167,7 @@ router.post('/login', async (req, res) => {
 router.post('/login-admin', async (req, res) => {
   const { phoneNumber, password, pushToken } = req.body;
 
-  console.log(pushToken, 'push token');
+  
 
   const existingUser = await db.Users.findOne({
     phoneNumber: phoneNumber,

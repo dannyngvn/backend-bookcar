@@ -23,6 +23,38 @@ router.get('/listdriver', async (req, res) => {
 router.get('/new-driver', async (req, res) => {
   try {
     const data = await db.Users.find({ status: 'not activated' }).toArray();
+console.log(data)
+
+    res.json({
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+// lay chuyen di moi 
+
+
+router.get('/new-trip', async (req, res) => {
+  try {
+    const data = await db.Trip.find({ status: 'waiting' }).toArray();
+console.log(data)
+
+    res.json({
+      data: data,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+// lay chuyen di da hoan thanh 
+
+router.get('/complete-trip', async (req, res) => {
+  try {
+    const data = await db.Trip.find({ status: 'complete' }).toArray();
+console.log(data)
 
     res.json({
       data: data,

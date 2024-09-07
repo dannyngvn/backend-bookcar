@@ -147,7 +147,17 @@ let toDate = `${year}${month}${day}`;
 
   const getHistory = async () => {
     const tpbToken = await storage.getItem('sessionId');
-    const existingTransaction  = db.Transaction.findOne()
+    const existingTransaction  = db.Transaction.findOne({ driverID: new ObjectId(userId),
+infor: valueDeposit.infor,
+amount: valueDeposit.amount,
+
+     });
+     if (existingTransaction) {
+      res.json({
+        message: 'Đừng gian lận địt mẹ mày',
+      })
+      return
+     }
     if (tpbToken === undefined) {
       console.log('lay token khi chua co ssid');
       getToken();
@@ -228,6 +238,7 @@ let toDate = `${year}${month}${day}`;
         timeStamp: formattedDate,
         transactionType: 'Nạp tiền',
         amount: `${'+'} ${valueDeposit.amount}`,
+        infor: valueDeposit.infor
       };
 
       await db.Transaction.insertOne(transaction);
