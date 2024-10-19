@@ -96,28 +96,40 @@ router.get('/booklist', async (req, res) => {
 //api tinh tien gia xe
 router.post('/price', async (req, res) => {
   const data = req.body;
-  console.log(data);
+  console.log(data)
+  const wayPoints = data.wayPoints
+  const waypointsStr = wayPoints.map(point => `${point.latitude},${point.longitude}`).join('|');
+ 
+  const apiKey = process.env.APIGGM;
 
   try {
-    const apiKey = process.env.APIGGM;
-    const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${data.pickUpPoint.latitude},${data.pickUpPoint.longitude}&destination=${data.dropOffPoint.latitude},${data.dropOffPoint.longitude}&mode=driving&key=${apiKey}`;
-    // `https://maps.googleapis.com/maps/api/directions/json?origin=21.0400413,105.8493559&destination=21.2176148,105.7929915&mode=driving&key=AIzaSyAfTs6YdTJLhcasLYHleMkwXnKS8CyEOPQ`
+   
+      const apiUrlWithWaypoint = `https://maps.googleapis.com/maps/api/directions/json?origin=${data.pickUpPoint.latitude},${data.pickUpPoint.longitude}&destination=${data.dropOffPoint.latitude},${data.dropOffPoint.longitude}&mode=driving&waypoints=${waypointsStr}&key=${apiKey}`;
 
-    const response = await axios.get(apiUrl);
+      const apiUrlNoWaypoint = `https://maps.googleapis.com/maps/api/directions/json?origin=${data.pickUpPoint.latitude},${data.pickUpPoint.longitude}&destination=${data.dropOffPoint.latitude},${data.dropOffPoint.longitude}&mode=driving&key=${apiKey}`;
+
+      const response = await axios.get(wayPoints.length > 0 ? apiUrlWithWaypoint : apiUrlNoWaypoint);
+     
     let distanceValue = null;
 
-    if (
-      response.data &&
-      response.data.routes &&
-      response.data.routes.length > 0
-    ) {
-      const distanceText = response.data.routes[0].legs[0].distance.text;
-      distanceValue = parseFloat(
-        distanceText.replace(/[^\d.]/g, '').replace(',', '.')
-      );
-    } else {
+   
+    if (response.data && response.data.routes && response.data.routes.length > 0) {
+      // Nếu có nhiều legs (nếu có waypoint), bạn cần lặp qua tất cả
+      const legs = response.data.routes[0].legs;
+      let totalDistance = 0;
+
+      for (const leg of legs) {
+          const distanceText = leg.distance.text; // Lấy văn bản khoảng cách cho từng leg
+          const legDistance = parseFloat(distanceText.replace(/[^\d.]/g, '').replace(',', '.'));
+          totalDistance += legDistance; // Cộng dồn khoảng cách
+      }
+
+      distanceValue = totalDistance; // Lưu tổng khoảng cách
+      console.log(`Tổng khoảng cách: ${totalDistance} km`);
+  } else {
       console.log('Không thể xác định khoảng cách.');
-    }
+  }
+    
 
     console.log(`Khoảng cách giữa hai điểm là 2: ${distanceValue}`);
    
