@@ -75,48 +75,8 @@ router.post('/', async (req, res) => {
   const data = req.body;
 console.log(data.lap)
   
-  try {
-
-    const apiKey = process.env.APIGGM;
-    const apiUrl = `https://maps.googleapis.com/maps/api/directions/json?origin=${data.pickUpPoint.latitude},${data.pickUpPoint.longitude}&destination=${data.dropOffPoint.latitude},${data.dropOffPoint.longitude}&mode=driving&key=${apiKey}`;
-    // `https://maps.googleapis.com/maps/api/directions/json?origin=21.0400413,105.8493559&destination=21.2176148,105.7929915&mode=driving&key=AIzaSyAfTs6YdTJLhcasLYHleMkwXnKS8CyEOPQ`
-
-    const response = await axios.get(apiUrl);
-    let distanceValue = null;
-
-    if (
-      response.data &&
-      response.data.routes &&
-      response.data.routes.length > 0
-    ) {
-      const distanceText = response.data.routes[0].legs[0].distance.text;
-      distanceValue = parseFloat(
-        distanceText.replace(/[^\d.]/g, '').replace(',', '.')
-        
-      );
-console.log("day la khoang cach ban cuoc",distanceValue)
-      if (!isNaN(distanceValue)) {
-        if (data.lap) {
-          
-          console.log("2 chieu")
-          const newData = { ...data, distance: distanceValue * 2}
-      await db.Trip.insertOne(newData);
-        }
-
-        if (!data.lap) {
-          console.log("1 chieu")
-          const newData = { ...data, distance: distanceValue }
-      await db.Trip.insertOne(newData);
-        }
-      } else {
-        console.log('Không thể xác định khoảng cách.');
-      }
-      
-    } else {
-      console.log('Không thể xác định khoảng cách.');
-    }
-   
-
+  try {    
+      await db.Trip.insertOne(data);
     res.json({
       message: 'Bắn cuốc thành công',
     });
