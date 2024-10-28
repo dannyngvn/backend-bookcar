@@ -12,10 +12,10 @@ import  checkRole  from '../middlewares/checkrole.middleware.js';
 
 const router = express.Router();
 
-router.use(logAPI);
+// router.use(logAPI);
 
-router.use('/trip', authMiddleware, tripRouter);
-router.use('/transaction', authMiddleware, transactionRouter);
+router.use('/trip', authMiddleware,logAPI, tripRouter);
+router.use('/transaction', authMiddleware,logAPI, transactionRouter);
 router.use('/notifications', notificationsRouter);
 router.use('/auth', authRouter);
 router.use('/client', clientRouter);

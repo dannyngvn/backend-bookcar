@@ -26,12 +26,8 @@ router.get('/', async (req, res) => {
 router.post('/withdraw', async (req, res) => {
   console.log('rut tien');
   const data = req.body;
-  const userId = req.params.userId;
+  const userId = req.userId;
   const amount = data.amount;
-  
-
-
-
   const amountFormat = amount.replace(/,/g, '');
   
 // console.log("ddaay la amountFormat",amountFormat, typeof(amountFormat))
@@ -39,7 +35,8 @@ router.post('/withdraw', async (req, res) => {
     ...data,
     amount: parseFloat(amountFormat),
     status: 'pending',
-    driverID: userId
+    driverID : userId
+  
   };
   console.log(withdrawValue, typeof(withdrawValue.amount))
   // console.log(withdrawValue, typeof withdrawValue.amount, 'data hoan chinh');
