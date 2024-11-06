@@ -101,33 +101,33 @@ let toDate = `${year}${month}${day}`;
     const response = await axios.post(
       'https://ebank.tpb.vn/gateway/api/auth/login/v3',
       {
-        deviceId: 'oXV18sNWk2tvcshevRqN67IlUeDxSBAW7pB7vyRnOwYFj',
+        deviceId: 'HH8XLgnmIKdwlzCfIydxtallW4XKfeM1VibJLcAFCpDiv',
         password: process.env.PASSWORDTPB,
         username: '04582772',
         transactionId: ""
       },
       {
         headers: {
-          APP_VERSION: "2024.07.12",
+          APP_VERSION: "2024.10.25",
           Accept: "application/json, text/plain, */*",
           "Accept-Language": "vi",
           Authorization: "Bearer",
           Connection: "keep-alive",
           "Content-Type": "application/json",
-          DEVICE_ID: "oXV18sNWk2tvcshevRqN67IlUeDxSBAW7pB7vyRnOwYFj",
+          DEVICE_ID: "HH8XLgnmIKdwlzCfIydxtallW4XKfeM1VibJLcAFCpDiv",
           DEVICE_NAME: "Chrome",
           Origin: "https://ebank.tpb.vn",
           PLATFORM_NAME: "WEB",
-          PLATFORM_VERSION: "127",
+          PLATFORM_VERSION: "130",
           Referer: "https://ebank.tpb.vn/retail/vX/",
           SOURCE_APP: "HYDRO",
           "Sec-Fetch-Dest": "empty",
           "Sec-Fetch-Mode": "cors",
           "Sec-Fetch-Site": "same-origin",
           "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
           "sec-ch-ua":
-            '"Not)A;Brand";v="99", "Google Chrome";v="127", "Chromium";v="127"',
+            'Chromium";v="130", "Google Chrome";v="130", "Not?A_Brand";v="99',
           "sec-ch-ua-mobile": "?0",
           "sec-ch-ua-platform": '"macOS"',
         },
@@ -175,25 +175,25 @@ amount: valueDeposit.amount,
       },
       {
         headers: {
-          APP_VERSION: "2024.07.12",
+          APP_VERSION: "2024.10.25",
           Accept: "application/json, text/plain, */*",
           "Accept-Language": "vi,en-US;q=0.9,en;q=0.8",
           Authorization: `Bearer ${tpbToken}`,
           Connection: "keep-alive",
           "Content-Type": "application/json",
-          DEVICE_ID: "oXV18sNWk2tvcshevRqN67IlUeDxSBAW7pB7vyRnOwYFj",
+          DEVICE_ID: "HH8XLgnmIKdwlzCfIydxtallW4XKfeM1VibJLcAFCpDiv",
           DEVICE_NAME: "Chrome",
           Origin: "https://ebank.tpb.vn",
           PLATFORM_NAME: "WEB",
-          PLATFORM_VERSION: "127",
+          PLATFORM_VERSION: "130",
           SOURCE_APP: "HYDRO",
           "Sec-Fetch-Dest": "empty",
           "Sec-Fetch-Mode": "cors",
           "Sec-Fetch-Site": "same-origin",
           "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/127.0.0.0 Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
           "sec-ch-ua":
-            '"Not)A;Brand";v="99", "Google Chrome";v="127", "Chromium";v="127"',
+            'Chromium";v="130", "Google Chrome";v="130", "Not?A_Brand";v="99',
           "sec-ch-ua-mobile": "?0",
           "sec-ch-ua-platform": '"macOS"',
         },
@@ -204,7 +204,7 @@ amount: valueDeposit.amount,
 
     const checkSSID = response.data.error;
     
-    if (checkSSID=== "Unauthorized") {
+    if (checkSSID=== "Unauthorized" ) {
       console.log('SSID het hieu luc lay lai ssid');
       getToken();
       return;

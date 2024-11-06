@@ -69,7 +69,7 @@ const logAPI = async (req, res, next) => {
     }
   }
   
-  console.log(action, " hanh dong")
+
 
   next();
 };
