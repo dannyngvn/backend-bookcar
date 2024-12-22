@@ -21,6 +21,7 @@ const upload = multer({ storage: storage });
 const router = express.Router();
 
 router.post('/refresh_token', async (req, res) => {
+  console.log("lam moi token hook")
   const refreshToken = req.headers['x-refresh-token'];
   const decodedRefreshToken = Jwt.verify(
     refreshToken,
@@ -37,7 +38,7 @@ router.post('/refresh_token', async (req, res) => {
   if (useCheckRefreshToken) {
     // Tạo một token mới
     const accessToken = Jwt.sign({ userId: userId, role: role }, process.env.SECRET_KEY, {
-      expiresIn: '30s',
+      expiresIn: '5s',
     });
    
 
@@ -143,7 +144,7 @@ router.post('/login', async (req, res) => {
   };
 
   const accessToken = Jwt.sign(jwtPayload, process.env.SECRET_KEY, {
-    expiresIn: '30s',
+    expiresIn: '5s',
   });
 
 

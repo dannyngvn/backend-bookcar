@@ -139,22 +139,22 @@ let toDate = `${year}${month}${day}`;
     const tpbToken = await storage.getItem('sessionId');
     console.log("token lay trong storage", tpbToken)   
   };
-  getToken()
+  
 
 
   const getHistory = async () => {
     const tpbToken = await storage.getItem('sessionId');
-    const existingTransaction  = db.Transaction.findOne({ driverID: new ObjectId(userId),
-infor: valueDeposit.infor,
-amount: valueDeposit.amount,
+//     const existingTransaction  = db.Transaction.findOne({ driverID: new ObjectId(userId),
+// infor: valueDeposit.infor,
+// amount: valueDeposit.amount,
 
-     });
-     if (existingTransaction) {
-      res.json({
-        message: 'Đừng gian lận địt mẹ mày',
-      })
-      return
-     }
+//      });
+    //  if (existingTransaction) {
+    //   res.json({
+    //     message: 'Đừng gian lận địt mẹ mày',
+    //   })
+    //   return
+    //  }
     if (tpbToken === undefined) {
       console.log('lay token khi chua co ssid');
       getToken();

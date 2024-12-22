@@ -27,7 +27,7 @@ let formattedDate = day + '/' + month + '/' + year;
 // lấy toàn bộ cuốc xe dang pending( đã hoàn thành )
 
 router.get('/', async (req, res) => {
-  const data = await db.Trip.find({}).toArray();
+  const data = await db.Trip.find({status: "pending"}).toArray();
 
   res.json({
     data: data,
