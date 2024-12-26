@@ -224,11 +224,18 @@ router.patch('/cancel/:id', async (req, res) => {
 
 router.patch('/complete/:id', async (req, res) => {
   const tripId = req.params.id;
-  const { originator } = req.body;
-  
-
+  const { originator , driver } = req.body;
+  const trip = await db.Trip.findOne({ _id: new ObjectId(tripId) });
+  const driverCheckCheat = await db.Users.findOne({ _id: new ObjectId(driver) });
+  if (trip._id !== driverCheckCheat._id) {
+    
+    res.json({
+      message: 'chuyến đi này  đã hủy',
+      
+    });
+   }
   try {
-    const trip = await db.Trip.findOne({ _id: new ObjectId(tripId) });
+  
 
     if (trip) {
       if (trip.status !== 'complete') {
