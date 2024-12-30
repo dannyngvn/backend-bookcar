@@ -29,7 +29,7 @@ let formattedDate = day + '/' + month + '/' + year;
 router.get('/', async (req, res) => {
   const data = await db.Trip.find({status: "pending"}).toArray();
   const filteredData = data.map(({ clientPhone, ...rest }) => rest);
-  console.log(data)
+  
   res.json({
     data: filteredData ,
   });
@@ -69,6 +69,23 @@ router.get('/:id', async (req, res) => {
   res.json({
     data: data,
   });
+});
+
+router.get('/clientPhone/:id', async (req, res) => {
+  console.log("get sdt")
+  const tripId = req.params.id;
+ 
+ 
+
+ 
+  const data = await db.Trip.findOne({ _id: new ObjectId(tripId) });
+
+  
+  const result = data.clientPhone; // Nếu data là MongoDB Document
+  console.log("sdt khac",result )
+
+
+    res.json({ data: result });
 });
 
 //Tạo cuốc xe mới ( đã hoàn thành)
