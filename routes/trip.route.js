@@ -28,9 +28,10 @@ let formattedDate = day + '/' + month + '/' + year;
 
 router.get('/', async (req, res) => {
   const data = await db.Trip.find({status: "pending"}).toArray();
-
+  const filteredData = data.map(({ clientPhone, ...rest }) => rest);
+  console.log(data)
   res.json({
-    data: data,
+    data: filteredData ,
   });
 });
 
@@ -63,7 +64,8 @@ router.get('/myprocessingtrip', async (req, res) => {
 router.get('/:id', async (req, res) => {
   const tripId = req.params.id;
   const data = await db.Trip.findOne({ _id: new ObjectId(tripId) });
-
+  const result = data; // Nếu `data` là MongoDB Document
+  delete result.clientPhone;
   res.json({
     data: data,
   });
